@@ -16,7 +16,7 @@ def main(df, x, category, annotate=None):
 
     def onclick(event):
         if event.xdata is not None and event.ydata is not None:
-            is_near = (df.x - event.xdata)**2 < .01
+            is_near = (df.x - event.xdata)**2 < 1000
             for iv, cv in enumerate(category_values):
                 is_category = (df[category] == cv) & (
                 abs(event.ydata-y[iv]) < .1
@@ -39,8 +39,8 @@ def main(df, x, category, annotate=None):
     plt.show()
 
 if __name__ == "__main__":
-    x = np.random.randint(1, 100, 20)
-    ab = np.random.choice(list('AB'), 20)
-    df = pd.DataFrame(dict(x=x, category=ab))
+    x = np.random.randint(20000, 40000, 20)
+    km = np.random.choice(['Kvinna', 'Man'], 20)
+    df = pd.DataFrame(dict(x=x, Kön=km))
 
-    sys.exit(main(df, 'x', 'category', annotate=('category', 'x')))
+    sys.exit(main(df, 'x', 'Kön', annotate=('Kön', 'x')))
