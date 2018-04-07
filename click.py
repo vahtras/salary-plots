@@ -41,6 +41,7 @@ def main(df, x, category, annotate=None):
 if __name__ == "__main__":
     x = np.random.randint(20000, 40000, 20)
     km = np.random.choice(['Kvinna', 'Man'], 20)
-    df = pd.DataFrame(dict(x=x, Kön=km))
+    school = np.random.choice(['A', 'B', 'C'], 20)
+    df = pd.DataFrame(dict(x=x, Skola=school))
 
-    sys.exit(main(df, 'x', 'Kön', annotate=('Kön', 'x')))
+    sys.exit(main(df, 'x', 'Skola', annotate=('Skola', 'x')))
