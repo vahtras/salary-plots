@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 def main(df):
-    y1, y2 = range(2)
+    y = range(2)
     #print(df)
 
     fig, ax = plt.subplots()
@@ -21,7 +21,7 @@ def main(df):
                 for i, row in df[sel].iterrows():
                     ax.annotate(
                         f"{row.ab}\n{row.x}",
-                        xy=(row.x, y1),
+                        xy=(row.x, y[0]),
                         xytext=(20, 20),
                         textcoords="offset points",
                         bbox={"boxstyle": "round", "fc": "w", "lw": 2},
