@@ -4,7 +4,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
-def main(df, x, category):
+def main(df, x, category, annotate=None):
     category_values = sorted(list(df[category].unique()))
     y = range(len(category_values))
     #print(df)
@@ -23,10 +23,9 @@ def main(df, x, category):
                 )
                 sel = is_category & is_near
                 if sel.any():
-                    #print(df[sel])
                     for i, row in df[sel].iterrows():
                         ax.annotate(
-                            f"{row[category]}\n{row[x]}",
+                            "\n".join(str(row[k]) for k in annotate),
                             xy=(row[x], y[iv]),
                             xytext=(20, 20),
                             textcoords="offset points",
@@ -35,7 +34,8 @@ def main(df, x, category):
                         )
                     fig.canvas.draw_idle()
 
-    cid = fig.canvas.mpl_connect('motion_notify_event', onclick)
+    if annotate is not None:
+        cid = fig.canvas.mpl_connect('motion_notify_event', onclick)
     plt.show()
 
 if __name__ == "__main__":
@@ -43,4 +43,4 @@ if __name__ == "__main__":
     ab = np.random.choice(list('AB'), 20)
     df = pd.DataFrame(dict(x=x, category=ab))
 
-    sys.exit(main(df, 'x', 'category'))
+    sys.exit(main(df, 'x', 'category', annotate=('category', 'x')))
