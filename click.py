@@ -16,7 +16,7 @@ def main(df, x, category, annotate=None):
 
     def onclick(event):
         if event.xdata is not None and event.ydata is not None:
-            is_near = (df.x - event.xdata)**2 < 1000
+            is_near = (df[x] - event.xdata)**2 < 1000
             for iv, cv in enumerate(category_values):
                 is_category = (df[category] == cv) & (
                 abs(event.ydata-y[iv]) < .1
