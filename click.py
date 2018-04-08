@@ -23,7 +23,7 @@ def set_y(df, y_label, y_sublabel=None):
     return _df
         
 
-def main(df, x, category, hue=None, annotate=None):
+def main(df, x, category, hue=None, annotate=None, on_click=None):
     category_values = sorted(list(df[category].dropna().unique()))
     hue_values = None
     if hue:
@@ -40,11 +40,11 @@ def main(df, x, category, hue=None, annotate=None):
 
     def hover(event):
         if event.xdata is not None and event.ydata is not None:
-            is_near_x = (_df[x] - event.xdata)**2 < 10000
-            is_near_y = (_df.y - event.ydata)**2 < 0.1
+            is_near_x = (hover._df[x] - event.xdata)**2 < 10000
+            is_near_y = (hover._df.y - event.ydata)**2 < 0.1
             selected = is_near_x & is_near_y
             if selected.any():
-                for i, row in _df[selected].iterrows():
+                for i, row in hover._df[selected].iterrows():
                     ax.annotate(
                         "\n".join(f"{row[k]}" for k in annotate if pd.notnull(row[k]) and row[k] != 0),
                         xy=(row[x], row.y),
@@ -56,11 +56,9 @@ def main(df, x, category, hue=None, annotate=None):
                 fig.canvas.draw_idle()
 
     if annotate is not None:
-        _df = set_y(df, category, hue)
+        hover._df = set_y(df, category, hue)
         cid = fig.canvas.mpl_connect('motion_notify_event', hover)
 
-    def on_click(event):
-        print(event.xdata, event.ydata)
 
     fig.canvas.mpl_connect('button_press_event', on_click)
 
@@ -73,9 +71,8 @@ if __name__ == "__main__":
     km = np.random.choice(['Kvinna', 'Man'], sample)
     school = np.random.choice(['A', 'B', 'C'], sample)
     df = pd.DataFrame(dict(x=x, Skola=school, Kön=km))
-    #print(df)
 
-    #sys.exit(main(df, 'x', 'Skola', annotate=('Skola', 'x', 'Kön')))
-    #sys.exit(main(df[df.Skola.isin(['A', 'C'])], 'x', 'Skola', annotate=('Skola', 'x', 'Kön')))
-    #sys.exit(main(df, 'x', 'Skola', 'Kön', annotate=('Skola', 'x', 'Kön')))
-    sys.exit(main(df[df.Skola.isin(['B', 'C'])], 'x', 'Skola', 'Kön', annotate=('Skola', 'x', 'Kön')))
+    def print_xy(event):
+        print(event.xdata, event.ydata)
+
+    sys.exit(main(df[df.Skola.isin(['B', 'C'])], 'x', 'Skola', 'Kön', annotate=('Skola', 'x', 'Kön'), on_click=print_xy))
