@@ -33,12 +33,12 @@ def test_init(sample):
     assert len(sample) == 10
 
 def test_y_cat(sample):
-    click.set_y(sample, 'Skola')
-    assert  list(sample.y) == [1., 1., 1., 0., 1., 0., 0., 1., 2. ,0.]
+    df = click.set_y(sample, 'Skola')
+    assert  list(df.y) == [1., 1., 1., 0., 1., 0., 0., 1., 2. ,0.]
 
 def test_y_subcat(sample):
-    click.set_y(sample, 'Skola', 'Kön')
+    df = click.set_y(sample, 'Skola', 'Kön')
     pdt.assert_series_equal(
-        sample.y, pd.Series([.8, .8, .8, 0.2, .8, .2, .2, .8, 1.8 ,.2], name='y')
+        df.y, pd.Series([.8, .8, .8, 0.2, .8, .2, .2, .8, 1.8 ,.2], name='y')
     )
 
