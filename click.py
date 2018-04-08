@@ -35,7 +35,7 @@ def main(df, x, category, hue=None, annotate=None):
         hue_order=hue_values
         )
 
-    def onclick(event):
+    def hover(event):
         if event.xdata is not None and event.ydata is not None:
             is_near_x = (df[x] - event.xdata)**2 < 1000
             is_near_y = (df.y - event.ydata)**2 < 0.1
@@ -53,14 +53,20 @@ def main(df, x, category, hue=None, annotate=None):
                 fig.canvas.draw_idle()
 
     if annotate is not None:
-        cid = fig.canvas.mpl_connect('motion_notify_event', onclick)
+        cid = fig.canvas.mpl_connect('motion_notify_event', hover)
+
+    def on_click(event):
+        print(event.xdata, event.ydata)
+
+    fig.canvas.mpl_connect('button_press_event', on_click)
+
     plt.show()
 
 if __name__ == "__main__":
     sample = 100
     x = np.random.randint(20000, 40000, sample)
     km = np.random.choice(['Kvinna', 'Man'], sample)
-    school = np.random.choice(['A', 'B', 'C'], sample)
+    school = np.random.choice(['A', 'B', 'C', 'D'], sample)
     df = pd.DataFrame(dict(x=x, Skola=school, Kön=km))
 
     sys.exit(main(df, 'x', 'Skola', 'Kön', annotate=('Skola', 'x', 'Kön')))
