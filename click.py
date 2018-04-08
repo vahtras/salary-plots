@@ -47,7 +47,7 @@ def main(df, x, category, hue=None, annotate=None):
             if selected.any():
                 for i, row in _df[selected].iterrows():
                     ax.annotate(
-                        "\n".join(str(row[k]) for k in annotate),
+                        "\n".join(f"{k}:{row[k]}" for k in annotate if pd.notnull(row[k]) and row[k] != 0),
                         xy=(row[x], row.y),
                         xytext=(20, 20),
                         textcoords="offset points",
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     km = np.random.choice(['Kvinna', 'Man'], sample)
     school = np.random.choice(['A', 'B', 'C'], sample)
     df = pd.DataFrame(dict(x=x, Skola=school, Kön=km))
-    print(df)
+    #print(df)
 
     #sys.exit(main(df, 'x', 'Skola', annotate=('Skola', 'x', 'Kön')))
     #sys.exit(main(df[df.Skola.isin(['A', 'C'])], 'x', 'Skola', annotate=('Skola', 'x', 'Kön')))
