@@ -22,6 +22,14 @@ def set_y(df, y_label, y_sublabel=None):
 
 def ignore(event):
     pass
+
+def get_row(event):
+    if event.xdata is not None and event.ydata is not None:
+        is_near_x = (get_row._df.x - event.xdata)**2 < 10000
+        is_near_y = (get_row._df.y - event.ydata)**2 < 0.1
+        selected = is_near_x & is_near_y
+        if selected.any():
+            return get_row._df[selected].iloc[0]
         
 def hover(event):
     if event.xdata is not None and event.ydata is not None:
@@ -61,9 +69,9 @@ def main(df, x, category, hue=None, annotate=None, on_hover=hover, on_click=igno
         on_hover._df = set_y(df, category, hue)
         on_hover._df['x'] = df[x]
         on_hover._annotate = annotate
-        print(on_hover._df)
         id = fig.canvas.mpl_connect('motion_notify_event', on_hover)
 
+    on_click._df = on_hover._df
     fig.canvas.mpl_connect('button_press_event', on_click)
 
     plt.tight_layout()
@@ -79,11 +87,16 @@ if __name__ == "__main__":
     def print_xy(event):
         print(event.xdata, event.ydata)
 
+    def print_row(event):
+        get_row._df = print_row._df
+        row = get_row(event)
+        print(row)
+
     sys.exit(
         main(
             df[df.Skola.isin(['B', 'C'])],
             'x', 'Skola', 'Kön',
             annotate=('Skola', 'x', 'Kön'),
-            on_click=ignore
+            on_click=print_row
         )
     )
