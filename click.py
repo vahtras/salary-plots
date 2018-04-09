@@ -6,16 +6,16 @@ import numpy as np
 
 def set_y(df, y_label, y_sublabel=None):
     _df = df.copy()
-    labels = sorted(list(_df[y_label].unique()))
-    y_values = [labels.index(row[y_label]) for _, row in _df.iterrows()]
+    y_labels = sorted(list(_df[y_label].unique()))
+    y_values = [y_labels.index(row[y_label]) for _, row in _df.iterrows()]
     _df["y"] = y_values
     if y_sublabel:
-        sublabels = sorted(list(_df[y_sublabel].unique()))
+        y_sublabels = sorted(list(_df[y_sublabel].unique()))
         y_subvalues = [
-            sublabels.index(row[y_sublabel]) for _, row in _df.iterrows()
+            y_sublabels.index(row[y_sublabel]) for _, row in _df.iterrows()
         ]
         _df["dy"] = y_subvalues
-        _df.dy -= (len(sublabels)-1) / 2
+        _df.dy -= (len(y_sublabels)-1) / 2
         _df.dy *= .4
         _df.y += _df.dy
     return _df
@@ -79,4 +79,11 @@ if __name__ == "__main__":
     def print_xy(event):
         print(event.xdata, event.ydata)
 
-    sys.exit(main(df[df.Skola.isin(['B', 'C'])], 'x', 'Skola', 'Kön', annotate=('Skola', 'x', 'Kön')))
+    sys.exit(
+        main(
+            df[df.Skola.isin(['B', 'C'])],
+            'x', 'Skola', 'Kön',
+            annotate=('Skola', 'x', 'Kön'),
+            on_click=ignore
+        )
+    )
