@@ -23,13 +23,13 @@ def set_y(df, y_label, y_sublabel=None):
 def ignore(event):
     pass
 
-def get_row(event):
+def get_row(event, df):
     if event.xdata is not None and event.ydata is not None:
-        is_near_x = (get_row._df.x - event.xdata)**2 < 10000
-        is_near_y = (get_row._df.y - event.ydata)**2 < 0.1
+        is_near_x = (df.x - event.xdata)**2 < 10000
+        is_near_y = (df.y - event.ydata)**2 < 0.1
         selected = is_near_x & is_near_y
         if selected.any():
-            return get_row._df[selected].iloc[0]
+            return df[selected].iloc[0]
         
 def hover(event):
     if event.xdata is not None and event.ydata is not None:
@@ -88,8 +88,7 @@ if __name__ == "__main__":
         print(event.xdata, event.ydata)
 
     def print_row(event):
-        get_row._df = print_row._df
-        row = get_row(event)
+        row = get_row(event, print_row._df)
         print(row)
 
     sys.exit(

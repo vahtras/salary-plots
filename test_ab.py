@@ -42,3 +42,11 @@ def test_y_subcat(sample):
         df.y, pd.Series([.8, .8, .8, 0.2, .8, .2, .2, .8, 1.8 ,.2], name='y')
     )
 
+def test_get_row(sample):
+    from collections import namedtuple
+    event = namedtuple("event", ["xdata", "ydata"])
+    df = click.set_y(sample, 'Skola', 'Kön')
+    pdt.assert_series_equal(
+        click.get_row(event(29225, .2), df),
+        df.loc[5]
+    )
