@@ -4,6 +4,40 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
+class Plotter:
+    def __init__(self, df, x, category=None, hue=None, on_hover=None, annotate=None):
+        self.df = df
+        self.x = x
+        self.category = category
+        self.hue = hue
+        self.on_hover = on_hover
+        self.annotate = annotate
+        if category is None:
+            self.df["y"] = 0.0
+
+    def category_values(self):
+        return sorted(list(self.df[self.category].dropna().unique()))
+
+    def hue_values(self):
+        return sorted(list(self.df[self.hue].dropna().unique()))
+
+    def boxplot(self):
+        self.fig, self.ax = plt.subplots()
+        sns.boxplot(
+            data=self.df, x=self.x, y=self.category, hue=self.hue,
+            whis=(10, 90), order=self.category_values(),
+            hue_order=self.hue_values()
+        )
+        plt.show()
+
+    def get_row(self, event):
+        if event.xdata is not None and event.ydata is not None:
+            is_near_x = (self.df.x - event.xdata)**2 < 10000
+            is_near_y = (self.df.y - event.ydata)**2 < 0.1
+            selected = is_near_x & is_near_y
+            if selected.any():
+                return self.df[selected].iloc[0]
+
 def main(
         df, x, category, hue=None, annotate=None,
         on_hover=None, on_click=None, boxplot=True,
