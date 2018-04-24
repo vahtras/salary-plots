@@ -5,6 +5,8 @@ import pandas as pd
 import pandas.util.testing as pdt
 from click import *
 
+Event = namedtuple('event', ['xdata', 'ydata'])
+
 @pytest.fixture
 def df():
     sample = 10
@@ -72,7 +74,21 @@ def test_annotate(df):
     assert plotter.annotate == ('Skola', 'x')
 
 def test_get_row_1(df):
-    Event = namedtuple('event', ['xdata', 'ydata'])
     plotter = Plotter(df, "x")
     row = plotter.get_row(Event(30799, 0))
     pdt.assert_series_equal(row, df.loc[1])
+
+def test_get_row_2(df):
+    plotter = Plotter(df, "x", "school")
+    row = plotter.get_row(Event(35832, 0))
+    pdt.assert_series_equal(row, df.loc[9])
+
+def test_get_row_3(df):
+    plotter = Plotter(df, "x", "school")
+    row = plotter.get_row(Event(22732, 1))
+    pdt.assert_series_equal(row, df.loc[0])
+
+def test_get_row_4(df):
+    plotter = Plotter(df, "x", "school")
+    row = plotter.get_row(Event(35430, 2))
+    pdt.assert_series_equal(row, df.loc[8])

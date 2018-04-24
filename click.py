@@ -14,6 +14,8 @@ class Plotter:
         self.annotate = annotate
         if category is None:
             self.df["y"] = 0.0
+        else:
+            self.df["y"] = self.set_y()
 
     def category_values(self):
         return sorted(list(self.df[self.category].dropna().unique()))
@@ -37,6 +39,15 @@ class Plotter:
             selected = is_near_x & is_near_y
             if selected.any():
                 return self.df[selected].iloc[0]
+
+    def set_y(self):
+        y_labels = sorted(list(self.df[self.category].unique()))
+        y_values = [
+            y_labels.index(row[self.category]) 
+            if pd.notnull(row[self.category]) else -1
+            for _, row in self.df.iterrows() 
+        ]
+        return y_values
 
 def main(
         df, x, category, hue=None, annotate=None,
