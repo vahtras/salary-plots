@@ -35,7 +35,7 @@ class Plotter:
             hue_order=self.hue_values()
         )
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
-        self.fig.canvas.mpl_connect('motion_notify_event', self.on_hover)
+        self.fig.canvas.mpl_connect('motion_notify_event', self)
         plt.show()
 
     def get_row(self, event):
@@ -54,6 +54,24 @@ class Plotter:
             for _, row in self.df.iterrows() 
         ]
         return y_values
+
+    def __call__(self, event):
+        if True:
+            row = self.get_row(event)
+        else:
+            row = get_row_pp(event, hover._df)
+        if row is not None:
+            fig = plt.gcf()
+            ax = plt.gca()
+            ax.annotate(
+                "\n".join(f"{row[k]}" for k in self.annotate if pd.notnull(row[k]) and row[k] != 0),
+                xy=(row.x, row.y),
+                xytext=(20, 20),
+                textcoords="offset points",
+                bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
+                arrowprops={'arrowstyle': '->'},
+            )
+            fig.canvas.draw_idle()
 
 def main(
         df, x, category, hue=None, annotate=None,
