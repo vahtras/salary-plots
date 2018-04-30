@@ -5,12 +5,16 @@ import pandas as pd
 import numpy as np
 
 class Plotter:
-    def __init__(self, df, x, category=None, hue=None, on_hover=None, annotate=None):
+    def __init__(
+        self, df, x, 
+        category=None, hue=None, on_hover=None, on_click=None, annotate=None
+        ):
         self.df = df
         self.x = x
         self.category = category
         self.hue = hue
         self.on_hover = on_hover
+        self.on_click = on_click
         self.annotate = annotate
         if category is None:
             self.df["y"] = 0.0
@@ -30,6 +34,8 @@ class Plotter:
             whis=(10, 90), order=self.category_values(),
             hue_order=self.hue_values()
         )
+        self.fig.canvas.mpl_connect('button_press_event', self.on_click)
+        self.fig.canvas.mpl_connect('motion_notify_event', self.on_hover)
         plt.show()
 
     def get_row(self, event):
@@ -208,3 +214,6 @@ if __name__ == "__main__":
         palette={'Kvinna': 'Red', 'Man': 'Blue'},
         title="Pointplot",
     )
+
+    pl = Plotter(df, 'x', category='Skola', hue='Kön', on_hover=hover, on_click=print_xy, annotate=('Skola', 'x', 'Kön'))
+    pl.boxplot()

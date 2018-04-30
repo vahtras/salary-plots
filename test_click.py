@@ -67,7 +67,17 @@ def test_hover(df):
     hover = lambda: None
     plotter = Plotter(df, "x", "school", "km", on_hover=hover)
     assert plotter.on_hover == hover
-    assert plotter.on_hover == hover
+
+@mock.patch('click.plt.show')
+def test_hover_connect(mock_show, df):
+    hover = lambda: None
+    with mock.patch('click.plt.subplots') as mock_plots:
+        mock_fig = mock.MagicMock()
+        mock_ax = mock.MagicMock()
+        mock_plots.return_value = mock_fig, mock_ax
+        plotter = Plotter(df, "x", "school", "km", on_hover=hover)
+        plotter.boxplot()
+        mock_fig.canvas.mpl_connect.assert_called_with('motion_notify_event', hover)
 
 def test_annotate(df):
     plotter = Plotter(df, "x", "school", "km", annotate=('Skola', 'x'))
