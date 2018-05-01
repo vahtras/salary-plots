@@ -48,12 +48,19 @@ class Plotter:
 
     def set_y(self):
         y_labels = sorted(list(self.df[self.category].unique()))
-        y_values = [
+        y_values = pd.Series(
             y_labels.index(row[self.category]) 
             if pd.notnull(row[self.category]) else -1
             for _, row in self.df.iterrows() 
-        ]
-        return y_values
+        )
+        if self.hue:
+            y_sublabels = sorted(list(self.df[self.hue].unique()))
+            y_subvalues = pd.Series(
+                y_sublabels.index(row[self.hue])
+                for _, row in self.df.iterrows()
+            )
+            y_values += y_subvalues - 0.2*(len(y_sublabels) - 1)
+        return y_values 
 
     def __call__(self, event):
         if True:
