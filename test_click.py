@@ -109,7 +109,6 @@ def test_get_row_4(df):
     row = plotter.get_row(Event(35430, 2))
     pdt.assert_series_equal(row, df.loc[8])
 
-@pytest.mark.skip()
 def test_set_y(df):
     plotter = Plotter(df, 'x')
     assert plotter.set_y() == [0]

@@ -47,6 +47,8 @@ class Plotter:
                 return self.df[selected].iloc[0]
 
     def set_y(self):
+        if self.category is None:
+            return [0]
         y_labels = sorted(list(self.df[self.category].unique()))
         y_values = pd.Series(
             y_labels.index(row[self.category]) 
@@ -78,7 +80,11 @@ class Plotter:
             fig = plt.gcf()
             ax = plt.gca()
             ax.annotate(
-                "\n".join(f"{row[k]}" for k in self.annotate if pd.notnull(row[k]) and row[k] != 0),
+                "\n".join(
+                        f"{row[k]}"
+                        for k in self.annotate
+                        if pd.notnull(row[k]) and row[k] != 0
+                ),
                 xy=(row.x, row.y),
                 xytext=(20, 20),
                 textcoords="offset points",
