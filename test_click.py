@@ -2,7 +2,7 @@ import pytest
 from unittest import mock
 from collections import namedtuple
 import pandas as pd
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 from click import *
 
 Event = namedtuple('event', ['xdata', 'ydata'])
@@ -92,6 +92,13 @@ def test_get_row_2(df):
     row = plotter.get_row(Event(35832, 0))
     pdt.assert_series_equal(row, df.loc[9])
 
+#@pytest.mark.skip()
+def test_get_row_2m(df):
+    plotter = Plotter(df, "x", "school", "km")
+    row = plotter.get_row(Event(35832, 0.2))
+    print(df)
+    pdt.assert_series_equal(row, df.loc[9])
+
 def test_get_row_3(df):
     plotter = Plotter(df, "x", "school")
     row = plotter.get_row(Event(22732, 1))
@@ -101,3 +108,25 @@ def test_get_row_4(df):
     plotter = Plotter(df, "x", "school")
     row = plotter.get_row(Event(35430, 2))
     pdt.assert_series_equal(row, df.loc[8])
+
+@pytest.mark.skip()
+def test_set_y(df):
+    plotter = Plotter(df, 'x')
+    assert plotter.set_y() == [0]
+
+def test_y_shift_2(df):
+    plotter = Plotter(df, 'x', 'school', 'km')
+    pdt.assert_series_equal(plotter.y_shift(), pd.Series([
+        -.2, -.2, -.2, .2, -.2, 
+        .2, .2, -.2, -.2, .2
+        ])
+    )
+
+def test_y_shift_3(df):
+    plotter = Plotter(df, 'x', 'km', 'school')
+    pdt.assert_series_equal(plotter.y_shift(), pd.Series([
+        0, 0, 0, -.2, 0, 
+        -.2, -.2, 0, .2, -.2
+        ])
+    )
+

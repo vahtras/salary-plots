@@ -55,12 +55,31 @@ class Plotter:
         )
         if self.hue:
             y_sublabels = sorted(list(self.df[self.hue].unique()))
+            print(y_sublabels)
             y_subvalues = pd.Series(
                 y_sublabels.index(row[self.hue])
                 for _, row in self.df.iterrows()
             )
-            y_values += y_subvalues - 0.2*(len(y_sublabels) - 1)
+            print((y_subvalues-.5)*.4)
+            if len(y_sublabels) == 2:
+                y_shift = (y_subvalues-.5)*.4
+                y_values += y_shift
         return y_values 
+
+    def y_shift(self):
+        if self.hue:
+            y_sublabels = sorted(list(self.df[self.hue].unique()))
+            print(y_sublabels)
+            y_subvalues = pd.Series(
+                y_sublabels.index(row[self.hue])
+                for _, row in self.df.iterrows()
+            )
+            print((y_subvalues-.5)*.4)
+            if len(y_sublabels) == 2:
+                y_shift = (y_subvalues-.5)*.4
+            if len(y_sublabels) == 3:
+                y_shift = (y_subvalues-1)*.2
+        return y_shift 
 
     def __call__(self, event):
         if True:
@@ -213,7 +232,8 @@ if __name__ == "__main__":
     uid2 = uid1.copy()
     np.random.shuffle(uid2)
 
-    df = pd.DataFrame(dict(x=x, Skola=school, Kön=km, uid=uid1))
+    #df = pd.DataFrame(dict(x=x, Skola=school, Kön=km, uid=uid1))
+    import test_click; df = test_click.df()
     print(df)
 
     def print_xy(event):
@@ -231,13 +251,13 @@ if __name__ == "__main__":
 
     main(
         df,
-        'x', 'Skola', 'Kön',
-        annotate=('Skola', 'x', 'Kön'),
-        on_click=print_row,
+        'x', 'school', 'km',
+        annotate=('school', 'x', 'km'),
+        on_click=print_xy,
         on_hover=hover,
         boxplot=True,
         palette={'Kvinna': 'Red', 'Man': 'Blue'},
-        title="Pointplot",
+        title="Boxplot",
     )
 
     pl = Plotter(df, 'x', category='Skola', hue='Kön', on_hover=hover, on_click=print_xy, annotate=('Skola', 'x', 'Kön'))
