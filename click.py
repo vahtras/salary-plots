@@ -70,6 +70,8 @@ class Plotter:
             l = (multiplicity-1)/2
             y_shift = (y_subvalues-l)*.8/multiplicity
             return y_shift
+        else:
+            return pd.Series(len(self.df)*[0.])
 
     def __call__(self, event):
         if True:
@@ -215,44 +217,22 @@ def pointplot(df, y, hue, palette):
     df_sorted['y'] = df[y]
     return df_sorted
 
+def print_xy(event):
+    print(event.xdata, event.ydata)
+
 if __name__ == "__main__":
     sample = 10
     x = np.random.randint(20000, 40000, sample)
     km = np.random.choice(['Kvinna', 'Man'], sample)
     school = np.random.choice(['A', 'B', 'C'], sample)
-    oldschool = np.random.choice(['a', 'b', 'c'], sample)
 
-    uid1 = np.arange(sample)
-    uid2 = uid1.copy()
-    np.random.shuffle(uid2)
+    df = pd.DataFrame(dict(x=x, km=km, school=school))
 
-    #df = pd.DataFrame(dict(x=x, Skola=school, Kön=km, uid=uid1))
-    import test_click; df = test_click.df()
-    print(df)
 
-    def print_xy(event):
-        print(event.xdata, event.ydata)
-
-    boxplot = False
-    def print_row(event):
-        if boxplot:
-            row = get_row(event, print_row._df)
-        else:
-            row = get_row_pp(event, print_row._df)
-        print(row)
-    print_row._df = df
-    hover._df = df
-
-    main(
-        df,
-        'x', 'school', 'km',
-        annotate=('school', 'x', 'km'),
-        on_click=print_xy,
+    pl = Plotter(
+        df, 'x', category='school', hue='km',
         on_hover=hover,
-        boxplot=True,
-        palette={'Kvinna': 'Red', 'Man': 'Blue'},
-        title="Boxplot",
+        on_click=print_xy,
+        annotate=('school', 'x', 'km')
     )
-
-    pl = Plotter(df, 'x', category='Skola', hue='Kön', on_hover=hover, on_click=print_xy, annotate=('Skola', 'x', 'Kön'))
     pl.boxplot()

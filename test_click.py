@@ -129,3 +129,8 @@ def test_y_shift_3(df):
         ])
     )
 
+def test_no_hue(df):
+    plotter = Plotter(df, 'x', 'km')
+    pdt.assert_series_equal(plotter.y_shift(), pd.Series(np.zeros(10)))
+
+
