@@ -54,32 +54,20 @@ class Plotter:
             for _, row in self.df.iterrows() 
         )
         if self.hue:
-            y_sublabels = sorted(list(self.df[self.hue].unique()))
-            print(y_sublabels)
-            y_subvalues = pd.Series(
-                y_sublabels.index(row[self.hue])
-                for _, row in self.df.iterrows()
-            )
-            print((y_subvalues-.5)*.4)
-            if len(y_sublabels) == 2:
-                y_shift = (y_subvalues-.5)*.4
-                y_values += y_shift
+            y_values += self.y_shift()
         return y_values 
 
     def y_shift(self):
         if self.hue:
             y_sublabels = sorted(list(self.df[self.hue].unique()))
-            print(y_sublabels)
             y_subvalues = pd.Series(
                 y_sublabels.index(row[self.hue])
                 for _, row in self.df.iterrows()
             )
-            print((y_subvalues-.5)*.4)
-            if len(y_sublabels) == 2:
-                y_shift = (y_subvalues-.5)*.4
-            if len(y_sublabels) == 3:
-                y_shift = (y_subvalues-1)*.2
-        return y_shift 
+            multiplicity = len(y_sublabels)
+            l = (multiplicity-1)/2
+            y_shift = (y_subvalues-l)*.8/multiplicity
+            return y_shift
 
     def __call__(self, event):
         if True:

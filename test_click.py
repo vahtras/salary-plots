@@ -125,8 +125,8 @@ def test_y_shift_2(df):
 def test_y_shift_3(df):
     plotter = Plotter(df, 'x', 'km', 'school')
     pdt.assert_series_equal(plotter.y_shift(), pd.Series([
-        0, 0, 0, -.2, 0, 
-        -.2, -.2, 0, .2, -.2
+        0, 0, 0, -.8/3, 0, 
+        -.8/3, -.8/3, 0, .8/3, -.8/3
         ])
     )
 
