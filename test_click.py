@@ -16,18 +16,18 @@ def df():
     #school = np.random.choice(['A', 'B', 'C'], sample)
     _df = pd.DataFrame(
         dict(
-            kr=[22732, 30799, 29845, 39648, 33123,
-               29225, 34116, 34935, 35430, 35832, 0],
-            km=['Kvinna', 'Kvinna', 'Kvinna', 'Man', 'Kvinna',
-                'Man', 'Man', 'Kvinna', 'Kvinna', 'Man', 'Man'],
-            school=['B', 'B', 'B', 'A', 'B', 'A', 'A', 'B', 'C', 'A', 'A'],
+            kr=[22732, 30799, 29845, 39648, 33123, 0,
+               29225, 34116, 34935, 35430, 35832],
+            km=['Kvinna', 'Kvinna', 'Kvinna', 'Man', 'Kvinna', 'Barn',
+                'Man', 'Man', 'Kvinna', 'Kvinna', 'Man' ],
+            school=['B', 'B', 'B', 'A', 'B', 'D',
+                    'A', 'A', 'B', 'C', 'A'],
         )
     )
     return _df[_df.kr > 0]
    
 def test_setup(df):
     plotter = Plotter(df, "kr", "school")
-    assert plotter.df is df
     assert plotter.x == "kr"
     assert plotter.category == "school"
 
@@ -38,7 +38,10 @@ def plx(df):
 def test_no_category_values(plx):
     assert plx.category_values() == []
     assert plx.hue_values() == []
-    pdt.assert_series_equal(plx.set_y(), pd.Series(np.zeros(len(plx.df))))
+    pdt.assert_series_equal(
+        plx.set_y(),
+        pd.Series([0.]*10, index=[0, 1, 2, 3, 4, 6, 7, 8, 9, 10])
+    )
 
 def test_category_values(df):
     plotter = Plotter(df, "kr", "school")
@@ -101,39 +104,42 @@ def test_annotate(df):
 
 def test_get_row_1(plx):
     row = plx.get_row(Event(30799, 0))
-    pdt.assert_series_equal(row, plx.df.loc[1])
+    pdt.assert_series_equal(row, plx.df.iloc[1])
 
 def test_get_row_2(plxy):
     row = plxy.get_row(Event(35832, 0))
-    pdt.assert_series_equal(row, plxy.df.loc[9])
+    pdt.assert_series_equal(row, plxy.df.iloc[9])
 
 def test_get_row_2m(plxyz):
     row = plxyz.get_row(Event(35832, 0.2))
-    pdt.assert_series_equal(row, plxyz.df.loc[9])
+    pdt.assert_series_equal(row, plxyz.df.iloc[9])
 
 def test_get_row_3(plxy):
     row = plxy.get_row(Event(22732, 1))
-    pdt.assert_series_equal(row, plxy.df.loc[0])
+    pdt.assert_series_equal(row, plxy.df.iloc[0])
 
 def test_get_row_4(plxy):
     row = plxy.get_row(Event(35430, 2))
-    pdt.assert_series_equal(row, plxy.df.loc[8])
+    pdt.assert_series_equal(row, plxy.df.iloc[8])
 
 def test_y_shift_2(plxyz):
     pdt.assert_series_equal(plxyz.y_shift(), pd.Series([
         -.2, -.2, -.2, .2, -.2, 
         .2, .2, -.2, -.2, .2
-        ])
+        ], index=plxyz.df.index)
     )
 
 def test_y_shift_3(plxzy):
     pdt.assert_series_equal(plxzy.y_shift(), pd.Series([
         0, 0, 0, -.8/3, 0, 
         -.8/3, -.8/3, 0, .8/3, -.8/3
-        ])
+        ], index=plxzy.df.index)
     )
 
 def test_no_hue(plxy):
-    pdt.assert_series_equal(plxy.y_shift(), pd.Series(np.zeros(10)))
+    pdt.assert_series_equal(
+        plxy.y_shift(),
+        pd.Series(np.zeros(10), index=plxy.df.index)
+    )
 
 

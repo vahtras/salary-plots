@@ -9,7 +9,7 @@ class Plotter:
         self, df, x, 
         category=None, hue=None, on_hover=None, on_click=None, annotate=()
         ):
-        self.df = df
+        self.df = df.copy()
         self.x = x
         self.category = category
         self.hue = hue
@@ -49,12 +49,13 @@ class Plotter:
 
     def set_y(self):
         if self.category is None:
-            return pd.Series(len(self.df)*[.0])
+            return pd.Series(len(self.df)*[.0], index=self.df.index)
         y_labels = sorted(list(self.df[self.category].unique()))
         y_values = pd.Series(
-            y_labels.index(row[self.category]) 
+            (y_labels.index(row[self.category]) 
             if pd.notnull(row[self.category]) else -1
-            for _, row in self.df.iterrows() 
+            for _, row in self.df.iterrows()) ,
+            index=self.df.index
         )
         if self.hue:
             y_values += self.y_shift()
@@ -64,15 +65,16 @@ class Plotter:
         if self.hue:
             y_sublabels = sorted(list(self.df[self.hue].unique()))
             y_subvalues = pd.Series(
-                y_sublabels.index(row[self.hue])
-                for _, row in self.df.iterrows()
+                (y_sublabels.index(row[self.hue])
+                for _, row in self.df.iterrows()),
+                index=self.df.index
             )
             multiplicity = len(y_sublabels)
             l = (multiplicity-1)/2
             y_shift = (y_subvalues-l)*.8/multiplicity
             return y_shift
         else:
-            return pd.Series(len(self.df)*[0.])
+            return pd.Series(len(self.df)*[0.], index=self.df.index)
 
     def __call__(self, event):
         row = self.get_row(event)
