@@ -84,11 +84,6 @@ def test_boxplot_show(plxyz):
         plxyz.boxplot()
         mockshow.assert_called_once()
 
-def test_hover(df):
-    hover = lambda: None
-    plotter = Plotter(df, "kr", "school", "km", on_hover=hover)
-    assert plotter.on_hover == hover
-
 @mock.patch('click.plt.show')
 def test_hover_connect(mock_show, plxyz):
     with mock.patch('click.plt.subplots') as mock_plots:

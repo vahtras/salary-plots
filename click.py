@@ -7,14 +7,12 @@ import numpy as np
 class Plotter:
     def __init__(
         self, df, x, 
-        category=None, hue=None, on_hover=None, on_click=None, annotate=()
+        category=None, hue=None, annotate=()
         ):
         self.df = df.copy()
         self.x = x
         self.category = category
         self.hue = hue
-        self.on_hover = on_hover
-        self.on_click = print_xy
         self.annotate = annotate
         self.df["y"] = self.set_y()
 
@@ -95,8 +93,8 @@ class Plotter:
             )
             fig.canvas.draw_idle()
 
-def print_xy(event):
-    print(event.xdata, event.ydata)
+    def on_click(self, event):
+        print(event.xdata, event.ydata)
 
 if __name__ == "__main__":
     sample = 10
@@ -109,7 +107,6 @@ if __name__ == "__main__":
     pl = Plotter(
         df, 'x', category='school', hue='km',
         #on_hover=hover,
-        on_click=print_xy,
         annotate=('school', 'x', 'km')
     )
     pl.boxplot()
