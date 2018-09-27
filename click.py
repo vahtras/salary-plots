@@ -119,7 +119,9 @@ class PointPlotter:
             x=df_sorted.index,
             y=self.numerical,
             hue=self.categorical,
-            )
+            ).set_xticklabels("")
+        ax = plt.gca()
+        ax.set_xticks([])
 
     
 def main():
@@ -127,8 +129,10 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--box-demo', action='store_true', help='Demo')
-    parser.add_argument('--box', action='store_true', help='Demo')
+    parser.add_argument('--box-demo', action='store_true', help='Box demo')
+    parser.add_argument('--box', action='store_true', help='Box plot')
+    parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
+    parser.add_argument('--point-plot', action='store_true', help='Point plot')
     parser.add_argument('--csv', help='CSV file')
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
@@ -153,6 +157,12 @@ def main():
         bp.plot()
         plt.show()
 
+    if args.point_plot_demo:
+        point_plot_demo()
+
+    if args.point_plot:
+        pass
+
 def box_demo():
     sample = 10
     x = np.random.randint(20000, 40000, sample)
@@ -165,6 +175,24 @@ def box_demo():
         df, 'x', category='school', hue='km',
         #on_hover=hover,
         annotate=('school', 'x', 'km')
+    )
+    pl.plot()
+    plt.show()
+
+def point_plot_demo():
+    sample = 10
+    x = np.random.randint(20000, 40000, sample)
+    km = np.random.choice(['Kvinna', 'Man'], sample)
+    school = np.random.choice(['A', 'B', 'C'], sample)
+
+    df = pd.DataFrame(dict(x=x, km=km, school=school))
+
+    pl = PointPlotter(
+        df,
+        numerical='x',
+        categorical='km',
+        #on_hover=hover,
+        #annotate=('school', 'x', 'km')
     )
     pl.plot()
     plt.show()
