@@ -26,7 +26,7 @@ class Plotter:
             return []
         return sorted(list(self.df[self.hue].dropna().unique()))
 
-    def boxplot(self):
+    def plot(self, **kwargs):
         self.fig, self.ax = plt.subplots()
         sns.boxplot(
             data=self.df, x=self.x, y=self.category, hue=self.hue,
@@ -35,7 +35,9 @@ class Plotter:
         )
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.fig.canvas.mpl_connect('motion_notify_event', self)
-        plt.show()
+
+        plt.title(kwargs.get('title'))
+        #plt.show()
 
     def get_row(self, event):
         if event.xdata is not None and event.ydata is not None:
@@ -46,6 +48,9 @@ class Plotter:
                 return self.df[selected].iloc[0]
 
     def set_y(self):
+        """
+        set expected y coordinate of categorical data point
+        """
         if self.category is None:
             return pd.Series(len(self.df)*[.0], index=self.df.index)
         y_labels = sorted(list(self.df[self.category].unique()))
@@ -96,7 +101,59 @@ class Plotter:
     def on_click(self, event):
         print(event.xdata, event.ydata)
 
-if __name__ == "__main__":
+class BoxPlotter(Plotter):
+    pass
+
+class PointPlotter:
+    def __init__(self, df, numerical="Månadslön", categorical="Kön"):
+        self.df = df
+        self.numerical = numerical
+        self.categorical = categorical
+
+    def plot(self):
+        df_sorted = self.df[[self.numerical, self.categorical]].sort_values(
+            self.numerical
+        ).reset_index(drop=True)
+        sns.stripplot(
+            data=df_sorted,
+            x=df_sorted.index,
+            y=self.numerical,
+            hue=self.categorical,
+            )
+
+    
+def main():
+
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--box-demo', action='store_true', help='Demo')
+    parser.add_argument('--box', action='store_true', help='Demo')
+    parser.add_argument('--csv', help='CSV file')
+    parser.add_argument('--num', help='Numerical label')
+    parser.add_argument('--cat', help='Categorical label')
+    parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
+
+    args = parser.parse_args()
+
+    if args.box_demo:
+        box_demo()
+
+    if args.box:
+        if not args.num and not args.cat:
+            raise Exception
+        df = pd.read_csv(args.csv)
+        import pdb; pdb.set_trace()
+        bp = BoxPlotter(
+            df,
+            args.num,
+            category=args.cat,
+            annotate=args.annotate
+        )
+        bp.plot()
+        plt.show()
+
+def box_demo():
     sample = 10
     x = np.random.randint(20000, 40000, sample)
     km = np.random.choice(['Kvinna', 'Man'], sample)
@@ -104,9 +161,13 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(dict(x=x, km=km, school=school))
 
-    pl = Plotter(
+    pl = BoxPlotter(
         df, 'x', category='school', hue='km',
         #on_hover=hover,
         annotate=('school', 'x', 'km')
     )
-    pl.boxplot()
+    pl.plot()
+    plt.show()
+
+if __name__ == "__main__":
+    main()

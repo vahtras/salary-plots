@@ -26,14 +26,30 @@ def df():
     )
     return _df[_df.kr > 0]
    
-def test_setup(df):
-    plotter = Plotter(df, "kr", "school")
+def test_box_setup(df):
+    plotter = BoxPlotter(df, "kr", "school")
     assert plotter.x == "kr"
     assert plotter.category == "school"
 
+def test_pp_default_setup(df):
+    plotter = PointPlotter(df)
+    assert plotter.df is df
+    assert plotter.numerical == "Månadslön"
+    assert plotter.categorical == "Kön"
+
+def test_pp_plot(df):
+    #df_sorted = pd.read_csv('test_pp_plot.csv')
+    pp = PointPlotter(df, numerical='kr', categorical='km')
+
+    with mock.patch('click.sns.stripplot') as mock_stripplot:
+        pp.plot()
+
+    mock_stripplot.assert_called()
+
+    
 @pytest.fixture
 def plx(df):
-    return Plotter(df, "kr")
+    return BoxPlotter(df, "kr")
 
 def test_no_category_values(plx):
     assert plx.category_values() == []
@@ -44,45 +60,40 @@ def test_no_category_values(plx):
     )
 
 def test_category_values(df):
-    plotter = Plotter(df, "kr", "school")
+    plotter = BoxPlotter(df, "kr", "school")
     assert plotter.category_values() == ["A", "B", "C"]
 
 @pytest.fixture
 def plxy(df):
-    return Plotter(df, "kr", "school")
+    return BoxPlotter(df, "kr", "school")
 
 @pytest.fixture
 def plxyz(df):
-    return Plotter(df, "kr", "school", "km")
+    return BoxPlotter(df, "kr", "school", "km")
 
 @pytest.fixture
 def plxzy(df):
-    return Plotter(df, "kr", "km", "school")
+    return BoxPlotter(df, "kr", "km", "school")
 
 def test_hue_values(plxyz):
     assert plxyz.hue_values() == ["Kvinna", "Man"]
 
 @mock.patch('click.plt.show')
-def test_boxplot_subplots(mock_show, plxyz):
+def test_plot_subplots(mock_show, plxyz):
     with mock.patch('click.plt.subplots') as mockplots:
         mockplots.return_value = mock.Mock(), mock.Mock()
-        plxyz.boxplot()
+        plxyz.plot()
         mockplots.assert_called_once()
 
 @mock.patch('click.plt.show')
-def test_boxplot_seaborn(mock_show, plxyz):
+def test_plot_seaborn(mock_show, plxyz):
     with mock.patch('click.sns.boxplot') as mockplot:
-        plxyz.boxplot()
+        plxyz.plot()
         mockplot.assert_called_once_with(
             data=plxyz.df, x="kr", y="school", hue="km",
             whis=(10,90), order=["A", "B", "C"], 
             hue_order=["Kvinna", "Man"]
         )
-
-def test_boxplot_show(plxyz):
-    with mock.patch('click.plt.show') as mockshow:
-        plxyz.boxplot()
-        mockshow.assert_called_once()
 
 @mock.patch('click.plt.show')
 def test_hover_connect(mock_show, plxyz):
@@ -90,11 +101,11 @@ def test_hover_connect(mock_show, plxyz):
         mock_fig = mock.MagicMock()
         mock_ax = mock.MagicMock()
         mock_plots.return_value = mock_fig, mock_ax
-        plxyz.boxplot()
+        plxyz.plot()
         mock_fig.canvas.mpl_connect.assert_called_with('motion_notify_event', plxyz)
 
 def test_annotate(df):
-    plotter = Plotter(df, "kr", "school", "km", annotate=('Skola', 'kr'))
+    plotter = BoxPlotter(df, "kr", "school", "km", annotate=('Skola', 'kr'))
     assert plotter.annotate == ('Skola', 'kr')
 
 def test_get_row_1(plx):
