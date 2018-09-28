@@ -31,22 +31,6 @@ def test_box_setup(df):
     assert plotter.x == "kr"
     assert plotter.category == "school"
 
-def test_pp_default_setup(df):
-    plotter = PointPlotter(df)
-    assert plotter.df is df
-    assert plotter.numerical == "Månadslön"
-    assert plotter.categorical == "Kön"
-
-def test_pp_plot(df):
-    #df_sorted = pd.read_csv('test_pp_plot.csv')
-    pp = PointPlotter(df, numerical='kr', categorical='km')
-
-    with mock.patch('click.sns.stripplot') as mock_stripplot:
-        pp.plot()
-
-    mock_stripplot.assert_called()
-
-    
 @pytest.fixture
 def plx(df):
     return BoxPlotter(df, "kr")
