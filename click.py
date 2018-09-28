@@ -135,7 +135,6 @@ class PointPlotter:
         if row is not None:
             fig = plt.gcf()
             ax = plt.gca()
-            print(row.name, row[self.numerical])
             ax.annotate(
                 "\n".join(
                         f"{row[k]}"
@@ -151,14 +150,11 @@ class PointPlotter:
             fig.canvas.draw_idle()
 
     def get_row(self, event):
-        print(event.xdata, event.ydata)
         if event.xdata:
             nearest_x = int(round(event.xdata))
             nearest_y = self.sorted.loc[nearest_x, self.numerical]
             diff_y = abs(event.ydata - nearest_y)
-            print("Nearest", nearest_x, nearest_y, diff_y)
             if diff_y < 1000:
-                print( self.sorted.loc[nearest_x])
                 return self.sorted.loc[nearest_x]
         
         
@@ -201,7 +197,15 @@ def main():
         point_plot_demo()
 
     if args.point_plot:
-        pass
+        if args.csv:
+            df = pd.read_csv(args.csv)
+            pp = PointPlotter(
+                df,
+                args.num,
+                args.cat
+            )
+            pp.plot()
+            plt.show()
 
 def box_demo():
     sample = 10
