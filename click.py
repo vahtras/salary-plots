@@ -105,23 +105,62 @@ class BoxPlotter(Plotter):
     pass
 
 class PointPlotter:
-    def __init__(self, df, numerical="Månadslön", categorical="Kön"):
+    def __init__(self, df, numerical="Månadslön", categorical="Kön", annotate=None):
         self.df = df
         self.numerical = numerical
         self.categorical = categorical
+        if annotate is None:
+            self.annotate = (numerical, categorical)
+        else:
+            self.annotate = annotate
 
     def plot(self):
-        df_sorted = self.df[[self.numerical, self.categorical]].sort_values(
+        self.sorted = self.df.sort_values(
             self.numerical
         ).reset_index(drop=True)
         sns.stripplot(
-            data=df_sorted,
-            x=df_sorted.index,
+            data=self.sorted,
+            x=self.sorted.index,
             y=self.numerical,
             hue=self.categorical,
             ).set_xticklabels("")
         ax = plt.gca()
+        fig = plt.gcf()
         ax.set_xticks([])
+        fig.canvas.mpl_connect('motion_notify_event', self)
+
+    def __call__(self, event):
+        row = self.get_row(event)
+        if row is not None:
+            fig = plt.gcf()
+            ax = plt.gca()
+            print(row.name, row[self.numerical])
+            ax.annotate(
+                "\n".join(
+                        f"{row[k]}"
+                        for k in self.annotate
+                        if pd.notnull(row[k]) and row[k] != 0
+                ),
+                xy=(row.name, row[self.numerical]),
+                xytext=(20, 20),
+                textcoords="offset points",
+                bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
+                arrowprops={'arrowstyle': '->'},
+            )
+            fig.canvas.draw_idle()
+
+    def get_row(self, event):
+        print(event.xdata, event.ydata)
+        if event.xdata:
+            nearest_x = int(round(event.xdata))
+            nearest_y = self.sorted.loc[nearest_x, self.numerical]
+            diff_y = abs(event.ydata - nearest_y)
+            print("Nearest", nearest_x, nearest_y, diff_y)
+            if diff_y < 1000:
+                print( self.sorted.loc[nearest_x])
+                return self.sorted.loc[nearest_x]
+        
+        
 
     
 def main():
@@ -192,7 +231,7 @@ def point_plot_demo():
         numerical='x',
         categorical='km',
         #on_hover=hover,
-        #annotate=('school', 'x', 'km')
+        annotate=('school', 'x', 'km')
     )
     pl.plot()
     plt.show()
