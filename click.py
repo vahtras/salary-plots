@@ -6,21 +6,53 @@ import pandas as pd
 import numpy as np
 
 class Plotter:
-    def __init__(
-        self, df, x, 
-        category=None, hue=None, annotate=()
-        ):
-        self.df = df.copy()
-        self.x = x
-        self.category = category
-        self.hue = hue
-        self.annotate = annotate
-        self.df["y"] = self.set_y()
+    def __init__(self, df, numerical, **kwargs):
+        self.df = df
+        self.numerical = numerical
 
-    def category_values(self):
-        if self.category is None:
+        default = dict(
+            categorical=None,
+            annotate=None
+            )
+        kw = {**default, **kwargs}
+        self.categorical = kw.get('categorical')
+        self.annotate = kw.get('annotate', numerical)
+
+    def categorical_values(self):
+        if self.categorical is None:
             return []
-        return sorted(list(self.df[self.category].dropna().unique()))
+        return sorted(list(self.df[self.categorical].dropna().unique()))
+
+    def plot(self):
+        raise NotImplementedError
+
+    def get_row(self, event):
+        raise NotImplementedError
+
+    def __call__(self, event):
+        row = self.get_row(event)
+        if row is not None:
+            fig = plt.gcf()
+            ax = plt.gca()
+            ax.annotate(
+                "\n".join(
+                        f"{row[k]}"
+                        for k in self.annotate
+                        if pd.notnull(row[k]) and row[k] != 0
+                ),
+                xy=get_coordinate(row),
+                xytext=(20, 20),
+                textcoords="offset points",
+                bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
+                arrowprops={'arrowstyle': '->'},
+            )
+            fig.canvas.draw_idle()
+
+class BoxPlotter(Plotter):
+    def __init__(self, df, numerical, **kwargs):
+        super().__init__(df, numerical, **kwargs)
+        self.hue = kwargs.get('hue')
+        self.df["y"] = self.set_y()
 
     def hue_values(self):
         if self.hue is None:
@@ -30,8 +62,8 @@ class Plotter:
     def plot(self, **kwargs):
         self.fig, self.ax = plt.subplots()
         sns.boxplot(
-            data=self.df, x=self.x, y=self.category, hue=self.hue,
-            whis=(10, 90), order=self.category_values(),
+            data=self.df, x=self.numerical, y=self.categorical, hue=self.hue,
+            whis=(10, 90), order=self.categorical_values(),
             hue_order=self.hue_values()
         )
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
@@ -42,7 +74,7 @@ class Plotter:
 
     def get_row(self, event):
         if event.xdata is not None and event.ydata is not None:
-            is_near_x = (self.df[self.x] - event.xdata)**2 < 10000
+            is_near_x = (self.df[self.numerical] - event.xdata)**2 < 10000
             is_near_y = (self.df.y - event.ydata)**2 < 0.1
             selected = is_near_x & is_near_y
             if selected.any():
@@ -52,12 +84,12 @@ class Plotter:
         """
         set expected y coordinate of categorical data point
         """
-        if self.category is None:
+        if self.categorical is None:
             return pd.Series(len(self.df)*[.0], index=self.df.index)
-        y_labels = sorted(list(self.df[self.category].unique()))
+        y_labels = sorted(list(self.df[self.categorical].unique()))
         y_values = pd.Series(
-            (y_labels.index(row[self.category]) 
-            if pd.notnull(row[self.category]) else -1
+            (y_labels.index(row[self.categorical]) 
+            if pd.notnull(row[self.categorical]) else -1
             for _, row in self.df.iterrows()) ,
             index=self.df.index
         )
@@ -80,40 +112,15 @@ class Plotter:
         else:
             return pd.Series(len(self.df)*[0.], index=self.df.index)
 
-    def __call__(self, event):
-        row = self.get_row(event)
-        if row is not None:
-            fig = plt.gcf()
-            ax = plt.gca()
-            ax.annotate(
-                "\n".join(
-                        f"{row[k]}"
-                        for k in self.annotate
-                        if pd.notnull(row[k]) and row[k] != 0
-                ),
-                xy=(row[self.x], row.y),
-                xytext=(20, 20),
-                textcoords="offset points",
-                bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
-                arrowprops={'arrowstyle': '->'},
-            )
-            fig.canvas.draw_idle()
+    def get_coordinate(self, row):
+        return (row[self.numerical], row.y)
+
 
     def on_click(self, event):
         print(event.xdata, event.ydata)
 
-class BoxPlotter(Plotter):
-    pass
 
-class PointPlotter:
-    def __init__(self, df, numerical="Månadslön", categorical="Kön", annotate=None):
-        self.df = df
-        self.numerical = numerical
-        self.categorical = categorical
-        if annotate is None:
-            self.annotate = (numerical, categorical)
-        else:
-            self.annotate = annotate
+class PointPlotter(Plotter):
 
     def plot(self):
         self.sorted = self.df.sort_values(
@@ -130,24 +137,8 @@ class PointPlotter:
         ax.set_xticks([])
         fig.canvas.mpl_connect('motion_notify_event', self)
 
-    def __call__(self, event):
-        row = self.get_row(event)
-        if row is not None:
-            fig = plt.gcf()
-            ax = plt.gca()
-            ax.annotate(
-                "\n".join(
-                        f"{row[k]}"
-                        for k in self.annotate
-                        if pd.notnull(row[k]) and row[k] != 0
-                ),
-                xy=(row.name, row[self.numerical]),
-                xytext=(20, 20),
-                textcoords="offset points",
-                bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
-                arrowprops={'arrowstyle': '->'},
-            )
-            fig.canvas.draw_idle()
+    def get_coordinate(self, row):
+        return (row.name, row[self.numerical])
 
     def get_row(self, event):
         if event.xdata:
@@ -157,9 +148,6 @@ class PointPlotter:
             if diff_y < 1000:
                 return self.sorted.loc[nearest_x]
         
-        
-
-    
 def main():
 
     import argparse
@@ -188,7 +176,7 @@ def main():
         bp = BoxPlotter(
             df,
             args.num,
-            category=args.cat,
+            categorical=args.cat,
             annotate=args.annotate
         )
         bp.plot()
@@ -227,7 +215,7 @@ def box_demo():
     df = pd.DataFrame(dict(x=x, km=km, school=school))
 
     pl = BoxPlotter(
-        df, 'x', category='school', hue='km',
+        df, 'x', categorical='school', hue='km',
         #on_hover=hover,
         annotate=('school', 'x', 'km')
     )

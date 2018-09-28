@@ -27,37 +27,37 @@ def df():
     return _df[_df.kr > 0]
    
 def test_box_setup(df):
-    plotter = BoxPlotter(df, "kr", "school")
-    assert plotter.x == "kr"
-    assert plotter.category == "school"
+    plotter = BoxPlotter(df, "kr", categorical="school")
+    assert plotter.numerical == "kr"
+    assert plotter.categorical == "school"
 
 @pytest.fixture
 def plx(df):
     return BoxPlotter(df, "kr")
 
-def test_no_category_values(plx):
-    assert plx.category_values() == []
+def test_no_categorical_values(plx):
+    assert plx.categorical_values() == []
     assert plx.hue_values() == []
     pdt.assert_series_equal(
         plx.set_y(),
         pd.Series([0.]*10, index=[0, 1, 2, 3, 4, 6, 7, 8, 9, 10])
     )
 
-def test_category_values(df):
-    plotter = BoxPlotter(df, "kr", "school")
-    assert plotter.category_values() == ["A", "B", "C"]
+def test_categorical_values(df):
+    plotter = BoxPlotter(df, "kr", categorical="school")
+    assert plotter.categorical_values() == ["A", "B", "C"]
 
 @pytest.fixture
 def plxy(df):
-    return BoxPlotter(df, "kr", "school")
+    return BoxPlotter(df, "kr", categorical="school")
 
 @pytest.fixture
 def plxyz(df):
-    return BoxPlotter(df, "kr", "school", "km")
+    return BoxPlotter(df, "kr", categorical="school", hue="km")
 
 @pytest.fixture
 def plxzy(df):
-    return BoxPlotter(df, "kr", "km", "school")
+    return BoxPlotter(df, "kr", categorical="km", hue="school")
 
 def test_hue_values(plxyz):
     assert plxyz.hue_values() == ["Kvinna", "Man"]
@@ -89,7 +89,7 @@ def test_hover_connect(mock_show, plxyz):
         mock_fig.canvas.mpl_connect.assert_called_with('motion_notify_event', plxyz)
 
 def test_annotate(df):
-    plotter = BoxPlotter(df, "kr", "school", "km", annotate=('Skola', 'kr'))
+    plotter = BoxPlotter(df, "kr", categorical="school", hue="km", annotate=('Skola', 'kr'))
     assert plotter.annotate == ('Skola', 'kr')
 
 def test_get_row_1(plx):

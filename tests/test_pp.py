@@ -29,10 +29,10 @@ def df():
     return _df[_df.kr > 0]
    
 def test_pp_default_setup(df):
-    plotter = click.PointPlotter(df)
+    plotter = click.PointPlotter(df, "Salary", categorical="Gender")
     assert plotter.df is df
-    assert plotter.numerical == "Månadslön"
-    assert plotter.categorical == "Kön"
+    assert plotter.numerical == "Salary"
+    assert plotter.categorical == "Gender"
 
 def test_pp_plot(df):
     #df_sorted = pd.read_csv('test_pp_plot.csv')
