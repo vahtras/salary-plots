@@ -56,6 +56,14 @@ def test_read_csv(mock_pp, mock_show, df):
     with mock.patch('click.pd.read_csv') as mock_csv:
         click.main()
     mock_csv.assert_called_with('exported.csv')
+
+@mock.patch('click.plt.show')
+@mock.patch('click.PointPlotter')
+def test_read_xl(mock_pp, mock_show, df):
+    sys.argv[1:] = ['--point-plot', '--xl=exported.xlsx']
+    with mock.patch('click.pd.read_excel') as mock_xl:
+        click.main()
+    mock_xl.assert_called_with('exported.xlsx')
     
 
     

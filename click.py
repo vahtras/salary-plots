@@ -170,6 +170,7 @@ def main():
     parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
     parser.add_argument('--point-plot', action='store_true', help='Point plot')
     parser.add_argument('--csv', help='CSV file')
+    parser.add_argument('--xl', help='excel file')
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
@@ -199,6 +200,16 @@ def main():
     if args.point_plot:
         if args.csv:
             df = pd.read_csv(args.csv)
+            pp = PointPlotter(
+                df,
+                args.num,
+                args.cat
+            )
+            pp.plot()
+            plt.show()
+
+        if args.xl:
+            df = pd.read_excel(args.xl)
             pp = PointPlotter(
                 df,
                 args.num,
