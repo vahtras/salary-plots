@@ -200,13 +200,14 @@ class PointPlotter(Plotter):
             self.numerical
         ).reset_index(drop=True)
 
-        self.fig, self.ax = plt.subplots()
+        self.fig, self.ax = plt.subplots(figsize=(16, 9))
         sns.stripplot(
             data=self.sorted,
             x=self.sorted.index,
             y=self.numerical,
             hue=self.categorical,
             ).set_xticklabels("")
+        self.ax.legend(loc='upper left')
 
         self.ax.set_xticks([])
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
@@ -267,6 +268,25 @@ def main():
     else:
         print("No data file")
         return
+
+    df = df[df[args.num] > 0]
+    for kv in args.filters:
+        if '!=' in kv:
+            k, v = kv.split('!=')
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+            df = df[df[k] == v]
+
+        if '=' in kv:
+            k, v = kv.split('=')
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+
+            df = df[df[k] == v]
     
 
     if args.box:
