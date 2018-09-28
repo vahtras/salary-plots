@@ -64,18 +64,19 @@ class Plotter:
         if row is not None:
             fig = plt.gcf()
             ax = plt.gca()
-            ax.annotate(
-                "\n".join(
-                    f"{row[k]}"
-                    for k in self.annotate
-                    if pd.notnull(row[k]) and row[k] != 0
-                ),
-                xy=self.get_coordinate(row),
-                xytext=(20, 20),
-                textcoords="offset points",
-                bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
-                arrowprops={'arrowstyle': '->'},
-            )
+            if self.annotate:
+                ax.annotate(
+                    "\n".join(
+                        f"{row[k]}"
+                        for k in self.annotate
+                        if pd.notnull(row[k]) and row[k] != 0
+                    ),
+                    xy=self.get_coordinate(row),
+                    xytext=(20, 20),
+                    textcoords="offset points",
+                    bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
+                    arrowprops={'arrowstyle': '->'},
+                )
             fig.canvas.draw_idle()
 
     def on_click(self, event):
@@ -248,48 +249,46 @@ def main():
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
+    parser.add_argument('--filters', nargs='+', default=[], help='filter data')
+    
 
     args = parser.parse_args()
 
     if args.box_demo:
         box_demo()
 
-    if args.box:
-        if not args.num and not args.cat:
-            raise Exception
+    if args.point_plot_demo:
+        point_plot_demo()
+
+    if args.csv:
         df = pd.read_csv(args.csv)
+    elif args.xl:
+        df = pd.read_excel(args.xl)
+    else:
+        print("No data file")
+        return
+    
+
+    if args.box:
         box_plotter = BoxPlotter(
             df,
             args.num,
             categorical=args.cat,
-            annotate=args.annotate
+            annotate=args.annotate,
         )
         box_plotter.plot()
         plt.show()
 
-    if args.point_plot_demo:
-        point_plot_demo()
 
     if args.point_plot:
-        if args.csv:
-            df = pd.read_csv(args.csv)
-            point_plotter = PointPlotter(
-                df,
-                args.num,
-                categorical=args.cat
-            )
-            point_plotter.plot()
-            plt.show()
-
-        if args.xl:
-            df = pd.read_excel(args.xl)
-            point_plotter = PointPlotter(
-                df,
-                args.num,
-                categorical=args.cat
-            )
-            point_plotter.plot()
-            plt.show()
+        point_plotter = PointPlotter(
+            df,
+            args.num,
+            categorical=args.cat,
+            annotate=args.annotate,
+        )
+        point_plotter.plot()
+        plt.show()
 
 def box_demo():
     """
