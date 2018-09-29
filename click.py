@@ -2,6 +2,7 @@
 """
 Generate seaborn boxplots and strip plots with annotations
 """
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -233,6 +234,17 @@ class PointPlotter(Plotter):
                 row = self.sorted.loc[nearest_x]
         return row
 
+def process_data(data):
+    h, e = os.path.splitext(data)
+    if e == '.csv':
+        df = pd.read_csv(data)
+    elif e == '.xlsx':
+        df = pd.read_excel(data)
+    else:
+        raise Exception(f'Unknown file format: {e}')
+    return df
+        
+
 def main():
     """
     Main driver for annotated plots
@@ -241,12 +253,11 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('data', help='Data file (excel/csv)')
     parser.add_argument('--box-demo', action='store_true', help='Box demo')
     parser.add_argument('--box', action='store_true', help='Box plot')
     parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
     parser.add_argument('--point-plot', action='store_true', help='Point plot')
-    parser.add_argument('--csv', help='CSV file')
-    parser.add_argument('--xl', help='excel file')
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
@@ -257,17 +268,13 @@ def main():
 
     if args.box_demo:
         box_demo()
+        return
 
     if args.point_plot_demo:
         point_plot_demo()
-
-    if args.csv:
-        df = pd.read_csv(args.csv)
-    elif args.xl:
-        df = pd.read_excel(args.xl)
-    else:
-        print("No data file")
         return
+
+    df = process_data(args.data)
 
     df = df[df[args.num] > 0]
     for kv in args.filters:
@@ -287,7 +294,6 @@ def main():
                 pass
 
             df = df[df[k] == v]
-    
 
     if args.box:
         box_plotter = BoxPlotter(
