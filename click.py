@@ -73,10 +73,11 @@ class Plotter:
                         if pd.notnull(row[k]) and row[k] != 0
                     ),
                     xy=self.get_coordinate(row),
-                    xytext=(20, 20),
+                    xytext=(-50, 50),
                     textcoords="offset points",
                     bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
                     arrowprops={'arrowstyle': '->'},
+                    size='x-large',
                 )
             fig.canvas.draw_idle()
 
@@ -113,7 +114,7 @@ class BoxPlotter(Plotter):
         Calls the Seaborn plot function and connects the plot for interactive
         with mouse
         """
-        self.fig, self.ax = plt.subplots()
+        self.fig, self.ax = plt.subplots(figsize=(16, 9))
         sns.boxplot(
             data=self.df, x=self.numerical, y=self.categorical, hue=self.hue,
             whis=(10, 90), order=self.categorical_values(),
@@ -244,6 +245,37 @@ def process_data(data):
         raise Exception(f'Unknown file format: {e}')
     return df
         
+def process_filters(df, filters):
+    for kv in filters:
+        if '!=' in kv:
+            k, v = kv.split('!=')
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+            df = df[df[k] != v]
+        elif '=' in kv:
+            k, v = kv.split('=')
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+            df = df[df[k] == v]
+        elif '>' in kv:
+            k, v = kv.split('>')
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+            df = df[df[k] > v]
+        elif '<' in kv:
+            k, v = kv.split('>')
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+            df = df[df[k] < v]
+    return df
 
 def main():
     """
@@ -277,23 +309,7 @@ def main():
     df = process_data(args.data)
 
     df = df[df[args.num] > 0]
-    for kv in args.filters:
-        if '!=' in kv:
-            k, v = kv.split('!=')
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-            df = df[df[k] == v]
-
-        if '=' in kv:
-            k, v = kv.split('=')
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-
-            df = df[df[k] == v]
+    df = process_filters(df, args.filters)
 
     if args.box:
         box_plotter = BoxPlotter(
