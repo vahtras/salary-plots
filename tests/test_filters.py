@@ -5,7 +5,7 @@ from collections import namedtuple
 import pandas as pd
 import pandas.testing as pdt
 
-import click
+from catplot import plotters, click
 
 Event = namedtuple('event', ['xdata', 'ydata'])
    

@@ -4,12 +4,12 @@ from collections import namedtuple
 import pandas as pd
 import pandas.testing as pdt
 
-import click
+from catplot import plotters
 
 Event = namedtuple('event', ['xdata', 'ydata'])
    
 def test_tabular(active):
-    plotter = click.Plotter(active, 'kr')
+    plotter = plotters.Plotter(active, 'kr')
     calculated = plotter.table()
     expected = pd.Series(
         [10, 32568, 22732, 28575, 30083, 33619, 35306, 36213, 39648],
@@ -20,7 +20,7 @@ def test_tabular(active):
     pdt.assert_series_equal(calculated, expected)
 
 def test_tabluar_grouped(active):
-    plotter = click.Plotter(active, 'kr', categorical='km')
+    plotter = plotters.Plotter(active, 'kr', categorical='km')
     calculated = plotter.table()
     expected = pd.DataFrame(
         data=dict(

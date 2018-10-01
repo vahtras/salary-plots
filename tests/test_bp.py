@@ -3,7 +3,8 @@ from unittest import mock
 from collections import namedtuple
 import pandas as pd
 import pandas.testing as pdt
-from click import *
+import numpy as np
+from catplot.plotters import *
 
 Event = namedtuple('event', ['xdata', 'ydata'])
 
@@ -62,16 +63,16 @@ def plxzy(df):
 def test_hue_values(plxyz):
     assert plxyz.hue_values() == ["Kvinna", "Man"]
 
-@mock.patch('click.plt.show')
+@mock.patch('catplot.plotters.plt.show')
 def test_plot_subplots(mock_show, plxyz):
-    with mock.patch('click.plt.subplots') as mockplots:
+    with mock.patch('catplot.plotters.plt.subplots') as mockplots:
         mockplots.return_value = mock.Mock(), mock.Mock()
         plxyz.plot()
         mockplots.assert_called_once()
 
-@mock.patch('click.plt.show')
+@mock.patch('catplot.plotters.plt.show')
 def test_plot_seaborn(mock_show, plxyz):
-    with mock.patch('click.sns.boxplot') as mockplot:
+    with mock.patch('catplot.plotters.sns.boxplot') as mockplot:
         plxyz.plot()
         mockplot.assert_called_once_with(
             data=plxyz.df, x="kr", y="school", hue="km",
@@ -79,9 +80,9 @@ def test_plot_seaborn(mock_show, plxyz):
             hue_order=["Kvinna", "Man"]
         )
 
-@mock.patch('click.plt.show')
+@mock.patch('catplot.plotters.plt.show')
 def test_hover_connect(mock_show, plxyz):
-    with mock.patch('click.plt.subplots') as mock_plots:
+    with mock.patch('catplot.plotters.plt.subplots') as mock_plots:
         mock_fig = mock.MagicMock()
         mock_ax = mock.MagicMock()
         mock_plots.return_value = mock_fig, mock_ax
