@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import demos
 
 
 class Plotter:
@@ -88,7 +89,14 @@ class Plotter:
         print(event.xdata, event.ydata)
 
     def table(self):
-        return self.df.describe(percentiles=(.1, .25, .75, .9)).drop('std').astype(int)
+        percentiles = (.1, .25, .75, .9)
+        if self.categorical:
+           stat = self.df.groupby(self.categorical)[self.numerical].describe(
+                percentiles=percentiles
+            ).drop('std', axis=1)
+        else:
+           stat = self.df[self.numerical].describe(percentiles=percentiles).drop('std')
+        return stat.astype(int)
 
 
 class BoxPlotter(Plotter):
@@ -298,17 +306,18 @@ def main():
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
     parser.add_argument('--filters', nargs='+', default=[], help='filter data')
-    parser.add_argument('--title', default="", help='filter data')
+    parser.add_argument('--title', default="", help='Pass title to fig')
+    parser.add_argument('--table', action='store_true', help='Print table')
     
 
     args = parser.parse_args()
 
     if args.box_demo:
-        box_demo()
+        demos.box_demo()
         return
 
     if args.point_plot_demo:
-        point_plot_demo()
+        demos.point_plot_demo()
         return
 
     df = process_data(args.data)
@@ -323,6 +332,8 @@ def main():
             categorical=args.cat,
             annotate=args.annotate,
         )
+        if args.table:
+            print(box_plotter.table())
         box_plotter.plot(title=args.title)
         plt.show()
 
@@ -336,45 +347,9 @@ def main():
             title=args.title
         )
         point_plotter.plot(title=args.title)
+        if args.table:
+            print(point_plotter.table())
         plt.show()
-
-def box_demo():
-    """
-    Boxplot demo
-    """
-    sample = 10
-    values = np.random.randint(20000, 40000, sample)
-    genders = np.random.choice(['Kvinna', 'Man'], sample)
-    units = np.random.choice(['A', 'B', 'C'], sample)
-
-    df = pd.DataFrame(dict(values=values, genders=genders, units=units))
-
-    box_plotter = BoxPlotter(
-        df, 'values', categorical='genders', hue='units',
-        annotate=('units', 'values', 'genders')
-    )
-    box_plotter.plot()
-    plt.show()
-
-def point_plot_demo():
-    """
-    Pointplot demo
-    """
-    sample = 10
-    values = np.random.randint(20000, 40000, sample)
-    genders = np.random.choice(['Kvinna', 'Man'], sample)
-    units = np.random.choice(['A', 'B', 'C'], sample)
-
-    df = pd.DataFrame(dict(values=values, genders=genders, units=units))
-
-    point_plotter = PointPlotter(
-        df,
-        numerical='values',
-        categorical='genders',
-        annotate=('units', 'values', 'genders')
-    )
-    point_plotter.plot()
-    plt.show()
 
 if __name__ == "__main__":
     main()
