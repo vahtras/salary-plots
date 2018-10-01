@@ -229,10 +229,11 @@ class PointPlotter(Plotter):
         row = None
         if event.xdata:
             nearest_x = int(round(event.xdata))
-            nearest_y = self.sorted.loc[nearest_x, self.numerical]
-            diff_y = abs(event.ydata - nearest_y)
-            if diff_y < 1000:
-                row = self.sorted.loc[nearest_x]
+            if nearest_x in self.sorted.index:
+                nearest_y = self.sorted.loc[nearest_x, self.numerical]
+                diff_y = abs(event.ydata - nearest_y)
+                if diff_y < 1000:
+                    row = self.sorted.loc[nearest_x]
         return row
 
 def process_data(data):
