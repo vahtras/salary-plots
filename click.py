@@ -87,6 +87,9 @@ class Plotter:
         """
         print(event.xdata, event.ydata)
 
+    def table(self):
+        return self.df.describe(percentiles=(.1, .25, .75, .9)).drop('std').astype(int)
+
 
 class BoxPlotter(Plotter):
     """
