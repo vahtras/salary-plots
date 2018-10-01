@@ -127,8 +127,7 @@ class BoxPlotter(Plotter):
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.fig.canvas.mpl_connect('motion_notify_event', self)
 
-        plt.title(kwargs.get('title'))
-        #plt.show()
+        self.ax.set_title(kwargs.get('title'))
 
     def get_row(self, event):
         """
@@ -213,6 +212,7 @@ class PointPlotter(Plotter):
             hue=self.categorical,
             ).set_xticklabels("")
         self.ax.legend(loc='upper left')
+        self.ax.set_title(kwargs.get('title'))
 
         self.ax.set_xticks([])
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
@@ -298,6 +298,7 @@ def main():
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
     parser.add_argument('--filters', nargs='+', default=[], help='filter data')
+    parser.add_argument('--title', default="", help='filter data')
     
 
     args = parser.parse_args()
@@ -322,7 +323,7 @@ def main():
             categorical=args.cat,
             annotate=args.annotate,
         )
-        box_plotter.plot()
+        box_plotter.plot(title=args.title)
         plt.show()
 
 
@@ -332,8 +333,9 @@ def main():
             args.num,
             categorical=args.cat,
             annotate=args.annotate,
+            title=args.title
         )
-        point_plotter.plot()
+        point_plotter.plot(title=args.title)
         plt.show()
 
 def box_demo():
