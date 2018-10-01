@@ -298,9 +298,9 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('data', help='Data file (excel/csv)')
-    parser.add_argument('--box-demo', action='store_true', help='Box demo')
-    parser.add_argument('--box', action='store_true', help='Box plot')
+    parser.add_argument('--box-plot-demo', action='store_true', help='Box demo')
     parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
+    parser.add_argument('--box-plot', action='store_true', help='Box plot')
     parser.add_argument('--point-plot', action='store_true', help='Point plot')
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
@@ -312,7 +312,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.box_demo:
+    if args.box_plot_demo:
         demos.box_demo()
         return
 
@@ -325,7 +325,7 @@ def main():
     df = df[df[args.num] > 0]
     df = process_filters(df, args.filters)
 
-    if args.box:
+    if args.box_plot:
         box_plotter = BoxPlotter(
             df,
             args.num,
