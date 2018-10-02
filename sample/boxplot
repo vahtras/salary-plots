@@ -1,0 +1,6 @@
+python -m catplot.click \
+--box-plot \
+--cat Skola \
+--filters 'Bef tom>2018-09-01'  Benämning=POSTDOKTOR \
+--annotate Förnamn Efternamn  \
+--title POSTDOKTOR --table

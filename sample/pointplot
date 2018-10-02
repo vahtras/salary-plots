@@ -1,0 +1,6 @@
+python -m catplot.click \
+--filters "Bef tom>2018-09-01"  Benämning=POSTDOKTOR \
+--cat Kön \
+--point-plot \
+--annotate Förnamn Efternamn \
+--title POSTDOKTOR --table
