@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from configparser import ConfigParser
 from .demos import *
+from .plotters import plotters
 
 def process_data(data):
     h, e = os.path.splitext(data)
@@ -103,7 +104,6 @@ def main():
     df = process_data(cfg['data'])
     df = process_filters(df, cfg['filters'])
 
-    plotters = {'box': BoxPlotter, 'point': PointPlotter}
     plotter = plotters[args.plot_type](
         df,
         cfg['num'],

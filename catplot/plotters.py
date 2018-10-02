@@ -238,3 +238,5 @@ class PointPlotter(Plotter):
                 if diff_y < 1000:
                     row = self.sorted.loc[nearest_x]
         return row
+
+plotters = {'box': BoxPlotter, 'point': PointPlotter}
