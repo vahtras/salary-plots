@@ -5,3 +5,5 @@ venv*
 *.err
 jupyter
 *.egg-info
+NOTES
+kth
