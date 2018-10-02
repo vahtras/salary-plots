@@ -60,14 +60,11 @@ def get_config(args=None, ini=None):
         config.read(ini)
         cfg = {**cfg, **config['DEFAULT']}
     if args:
-        kwargs = {k: v for k, v in vars(args).items() if v}
+        kwargs = {k: v for k, v in vars(args).items() if v is not None}
         cfg = {**cfg, **kwargs}
     return cfg
 
-def main():
-    """
-    Main driver for annotated plots
-    """
+def get_args():
 
     import argparse
 
@@ -84,16 +81,22 @@ def main():
     parser.add_argument('--filters', nargs='+', default=[], help='filter data')
     parser.add_argument('--title', default="", help='Pass title to fig')
     parser.add_argument('--table', action='store_true', help='Print table')
-    
 
     args = parser.parse_args()
-    cfg = get_config(args, ini='config.ini')
+    return args
 
-    if args.box_plot_demo:
+def main():
+    """
+    Main driver for annotated plots
+    """
+
+    cfg = get_config(get_args(), ini='config.ini')
+
+    if cfg['box_plot_demo']:
         box_demo()
         return
 
-    if args.point_plot_demo:
+    if cfg['point_plot_demo']:
         point_plot_demo()
         return
 
@@ -104,16 +107,16 @@ def main():
     df = process_data(cfg['data'])
     df = process_filters(df, cfg['filters'])
 
-    plotter = plotters[args.plot_type](
+    plotter = plotters[cfg['plot_type']](
         df,
         cfg['num'],
-        categorical=cfg['cat'],
+        categorical=cfg.get('cat'),
         annotate=cfg['annotate']
     )
-    plotter.plot(title=args.title)
+    plotter.plot(title=cfg['title'])
     plt.show()
 
-    if args.table:
+    if cfg['table']:
         print(plotter.table())
 
 if __name__ == "__main__":
