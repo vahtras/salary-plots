@@ -73,6 +73,7 @@ def main():
     
 
     args = parser.parse_args()
+    print(args)
 
     if args.box_plot_demo:
         box_demo()
@@ -80,6 +81,9 @@ def main():
 
     if args.point_plot_demo:
         point_plot_demo()
+        return
+
+    if not args.data:
         return
 
     df = process_data(args.data)
