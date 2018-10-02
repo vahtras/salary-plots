@@ -41,5 +41,5 @@ def point_plot_demo():
         annotate=('units', 'values', 'genders')
     )
     point_plotter.plot()
-    point_plotter.ax.set_title("Box plot demo")
+    point_plotter.ax.set_title("Point plot demo")
     plt.show()

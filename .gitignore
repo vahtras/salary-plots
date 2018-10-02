@@ -4,3 +4,4 @@ venv*
 *.log
 *.err
 jupyter
+*.egg-info
