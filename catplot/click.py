@@ -59,7 +59,8 @@ def get_config(args=None, ini=None):
         config.read(ini)
         cfg = {**cfg, **config['DEFAULT']}
     if args:
-        cfg = {**cfg, **vars(args)}
+        kwargs = {k: v for k, v in vars(args).items() if v}
+        cfg = {**cfg, **kwargs}
     return cfg
 
 def main():
@@ -73,8 +74,9 @@ def main():
     parser.add_argument('--data', help='Data file (excel/csv)')
     parser.add_argument('--box-plot-demo', action='store_true', help='Box demo')
     parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
-    parser.add_argument('--box-plot', action='store_true', help='Box plot')
-    parser.add_argument('--point-plot', action='store_true', help='Point plot')
+    #parser.add_argument('--box-plot', action='store_true', help='Box plot')
+    #parser.add_argument('--point-plot', action='store_true', help='Point plot')
+    parser.add_argument('--plot-type', choices=('box', 'point'), help='Plot type')
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
@@ -84,7 +86,7 @@ def main():
     
 
     args = parser.parse_args()
-    print(args)
+    cfg = get_config(args, ini='config.ini')
 
     if args.box_plot_demo:
         box_demo()
@@ -94,39 +96,25 @@ def main():
         point_plot_demo()
         return
 
-    if not args.data:
+    if not cfg['data']:
+        print("No data")
         return
 
-    df = process_data(args.data)
+    df = process_data(cfg['data'])
+    df = process_filters(df, cfg['filters'])
 
-    df = df[df[args.num] > 0]
-    df = process_filters(df, args.filters)
+    plotters = {'box': BoxPlotter, 'point': PointPlotter}
+    plotter = plotters[args.plot_type](
+        df,
+        cfg['num'],
+        categorical=cfg['cat'],
+        annotate=cfg['annotate']
+    )
+    plotter.plot(title=args.title)
+    plt.show()
 
-    if args.box_plot:
-        box_plotter = BoxPlotter(
-            df,
-            args.num,
-            categorical=args.cat,
-            annotate=args.annotate,
-        )
-        if args.table:
-            print(box_plotter.table())
-        box_plotter.plot(title=args.title)
-        plt.show()
-
-
-    if args.point_plot:
-        point_plotter = PointPlotter(
-            df,
-            args.num,
-            categorical=args.cat,
-            annotate=args.annotate,
-            title=args.title
-        )
-        point_plotter.plot(title=args.title)
-        if args.table:
-            print(point_plotter.table())
-        plt.show()
+    if args.table:
+        print(plotter.table())
 
 if __name__ == "__main__":
     main()
