@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+from configparser import ConfigParser
 from .demos import *
 
 def process_data(data):
@@ -50,6 +51,16 @@ def process_filters(df, filters):
                 pass
             df = df[df[k] < v]
     return df
+
+def get_config(args=None, ini=None):
+    cfg = os.environ
+    if ini:
+        config = ConfigParser()
+        config.read(ini)
+        cfg = {**cfg, **config['DEFAULT']}
+    if args:
+        cfg = {**cfg, **vars(args)}
+    return cfg
 
 def main():
     """
