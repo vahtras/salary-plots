@@ -1,7 +1,7 @@
 import os
 import argparse
 import unittest.mock as mock
-from catplot.click import get_config
+from catplot.main import get_config
 
 def test_data_from_env():
     os.environ['data'] = 'export.xlsx'
@@ -10,7 +10,7 @@ def test_data_from_env():
 
 def test_data_from_cfg():
     os.environ['data'] = 'export.xlsx'
-    with mock.patch('catplot.click.ConfigParser') as mock_parser:
+    with mock.patch('catplot.main.ConfigParser') as mock_parser:
         mock_parser.return_value = mock.MagicMock()
         mock_config = mock_parser()
         mock_config.__getitem__.side_effect = \

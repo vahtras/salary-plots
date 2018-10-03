@@ -5,7 +5,7 @@ from collections import namedtuple
 import pandas as pd
 import pandas.testing as pdt
 
-from catplot import click, plotters
+from catplot import main, plotters
 
 Event = namedtuple('event', ['xdata', 'ydata'])
 
@@ -25,9 +25,9 @@ def test_pp_plot(df):
     mock_stripplot.assert_called()
 
 def test_read_csv_data():
-    with mock.patch('catplot.click.pd.read_csv') as mock_csv:
-        click.process_data('exported.csv')
+    with mock.patch('catplot.main.pd.read_csv') as mock_csv:
+        main.process_data('exported.csv')
 
 def test_read_xl_data():
-    with mock.patch('catplot.click.pd.read_excel') as mock_xl:
-        click.process_data('exported.xlsx')
+    with mock.patch('catplot.main.pd.read_excel') as mock_xl:
+        main.process_data('exported.xlsx')
