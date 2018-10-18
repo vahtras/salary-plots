@@ -1,4 +1,4 @@
-python -m catplot.click \
+python -m catplot.main \
 --box-plot \
 --cat Skola \
 --filters 'Bef tom>2018-09-01'  Benämning=POSTDOKTOR \

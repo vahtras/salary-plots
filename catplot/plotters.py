@@ -28,6 +28,7 @@ class Plotter:
         self.fig = None
         self.ax = None
         self.sorted = None
+        self.palette = settings.get('palette')
 
     def categorical_values(self):
         """
@@ -136,8 +137,11 @@ class BoxPlotter(Plotter):
         """
         row = None
         if event.xdata is not None and event.ydata is not None:
-            is_near_x = (self.df[self.numerical] - event.xdata)**2 < 10000
-            is_near_y = (self.df.y - event.ydata)**2 < 0.1
+            in_x = (self.df[self.numerical].max() - 
+                    self.df[self.numerical].min())*.01
+            in_y = (self.df.y.max() - self.df.y.min() + 1)*.01
+            is_near_x = (self.df[self.numerical] - event.xdata)**2 < in_x**2
+            is_near_y = (self.df.y - event.ydata)**2 < in_y**2
             selected = is_near_x & is_near_y
             if selected.any():
                 row = self.df[selected].iloc[0]
@@ -210,6 +214,7 @@ class PointPlotter(Plotter):
             x=self.sorted.index,
             y=self.numerical,
             hue=self.categorical,
+            palette=self.palette,
             ).set_xticklabels("")
         self.ax.legend(loc='upper left')
         self.ax.set_title(kwargs.get('title'))

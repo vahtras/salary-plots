@@ -7,6 +7,7 @@ def test_boxplot(mock_show):
     sys.argv[1:] = [
         '--data', 'ftests/sample.csv',
         '--num', 'Lon',
+        '--cat', 'Cat',
         '--plot-type', 'box',
         '--title', 'POSTDOKTOR', '--table'
     ]
@@ -19,6 +20,7 @@ def test_pointplot(mock_show):
     sys.argv[1:] = [
         '--data', 'ftests/sample.csv',
         '--num', 'Lon',
+        '--cat', 'Cat',
         '--plot-type', 'point',
         '--title', 'POSTDOKTOR', '--table'
     ]

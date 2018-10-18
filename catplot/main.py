@@ -3,6 +3,7 @@
 Generate seaborn boxplots and strip plots with annotations
 """
 import os
+import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -54,6 +55,7 @@ def process_filters(df, filters):
     return df
 
 def get_config(args=None, ini=None):
+    #cfg = {}
     cfg = os.environ
     if ini:
         config = ConfigParser()
@@ -72,15 +74,14 @@ def get_args():
     parser.add_argument('--data', help='Data file (excel/csv)')
     parser.add_argument('--box-plot-demo', action='store_true', help='Box demo')
     parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
-    #parser.add_argument('--box-plot', action='store_true', help='Box plot')
-    #parser.add_argument('--point-plot', action='store_true', help='Point plot')
     parser.add_argument('--plot-type', choices=('box', 'point'), help='Plot type')
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
     parser.add_argument('--filters', nargs='+', default=[], help='filter data')
-    parser.add_argument('--title', default="", help='Pass title to fig')
+    parser.add_argument('--title', default=None, help='Pass title to fig')
     parser.add_argument('--table', action='store_true', help='Print table')
+    parser.add_argument('--palette', default={}, help='Colors')
 
     args = parser.parse_args()
     return args
@@ -104,6 +105,12 @@ def main():
         print("No data")
         return
 
+    if cfg['palette']:
+        palette = json.loads(cfg['palette'])
+    else:
+        palette = {}
+        
+
     df = process_data(cfg['data'])
     df = process_filters(df, cfg['filters'])
 
@@ -111,9 +118,12 @@ def main():
         df,
         cfg['num'],
         categorical=cfg.get('cat'),
-        annotate=cfg['annotate']
+        annotate=cfg['annotate'],
+        palette=palette,
     )
     plotter.plot(title=cfg['title'])
+    fig = plt.gcf()
+    fig.savefig(f"{cfg['title']}-{cfg['num']}-{cfg['cat']}.png")
     plt.show()
 
     if cfg['table']:
