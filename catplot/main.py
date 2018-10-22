@@ -52,6 +52,10 @@ def process_filters(df, filters):
             except ValueError:
                 pass
             df = df[df[k] < v]
+        elif ' in ' in kv:
+            k, v = kv.split(' in ')
+            values = v.split()
+            df = df[df[k].isin(values)]
     return df
 
 def get_config(args=None, ini=None):
