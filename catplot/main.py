@@ -125,9 +125,9 @@ def main():
         annotate=cfg['annotate'],
         palette=palette,
     )
-    plotter.plot(title=cfg['title'])
+    plotter.plot(title=cfg.get('title'))
     fig = plt.gcf()
-    fig.savefig(f"{cfg['title']}-{cfg['num']}-{cfg['cat']}.png")
+    fig.savefig(f"{cfg.get('title', '')}-{cfg['num']}-{cfg.get('cat', '')}.png")
     plt.show()
 
     if cfg['table']:
