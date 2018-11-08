@@ -1,0 +1,4 @@
+#!/bin/bash
+python -m catplot.main --plot-type box $@
+
+
