@@ -46,7 +46,7 @@ def process_filters(df, filters):
                 pass
             df = df[df[k] > v]
         elif '<' in kv:
-            k, v = kv.split('>')
+            k, v = kv.split('<')
             try:
                 v = int(v)
             except ValueError:
