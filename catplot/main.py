@@ -65,8 +65,12 @@ def get_config(args=None, ini=None):
         config = ConfigParser()
         config.read(ini)
         cfg = {**cfg, **config['DEFAULT']}
+        if 'filters' in cfg:
+            cfg['filters'] = cfg['filters'].split('\n')
+        if 'annotate' in cfg:
+            cfg['annotate'] = cfg['annotate'].split('\n')
     if args:
-        kwargs = {k: v for k, v in vars(args).items() if v is not None}
+        kwargs = {k: v for k, v in vars(args).items() if v }
         cfg = {**cfg, **kwargs}
     return cfg
 
@@ -97,11 +101,11 @@ def main():
 
     cfg = get_config(get_args(), ini='config.ini')
 
-    if cfg['box_plot_demo']:
+    if cfg.get('box_plot_demo'):
         box_demo()
         return
 
-    if cfg['point_plot_demo']:
+    if cfg.get('point_plot_demo'):
         point_plot_demo()
         return
 
@@ -109,20 +113,20 @@ def main():
         print("No data")
         return
 
-    if cfg['palette']:
+    if cfg.get('palette'):
         palette = json.loads(cfg['palette'])
     else:
         palette = {}
         
 
     df = process_data(cfg['data'])
-    df = process_filters(df, cfg['filters'])
+    df = process_filters(df, cfg.get('filters', []))
 
     plotter = plotters[cfg['plot_type']](
         df,
         cfg['num'],
         categorical=cfg.get('cat'),
-        annotate=cfg['annotate'],
+        annotate=cfg.get('annotate'),
         palette=palette,
     )
     plotter.plot(title=cfg.get('title'))
@@ -130,7 +134,7 @@ def main():
     fig.savefig(f"{cfg.get('title', '')}-{cfg['num']}-{cfg.get('cat', '')}.png")
     plt.show()
 
-    if cfg['table']:
+    if cfg.get('table'):
         print(plotter.table())
 
 if __name__ == "__main__":
