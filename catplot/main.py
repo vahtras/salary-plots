@@ -71,6 +71,9 @@ def get_config(args=None, ini=None):
             cfg['annotate'] = cfg['annotate'].split('\n')
     if args:
         kwargs = {k: v for k, v in vars(args).items() if v }
+        # Do not overwrite filters, update
+        if 'filters' in cfg and 'filters' in kwargs:
+            kwargs['filters'] += cfg['filters']
         cfg = {**cfg, **kwargs}
     return cfg
 
