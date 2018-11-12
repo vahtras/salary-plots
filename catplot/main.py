@@ -11,6 +11,7 @@ import numpy as np
 from configparser import ConfigParser
 from .demos import *
 from .plotters import plotters
+from .util import process_filters
 
 def process_data(data):
     h, e = os.path.splitext(data)
@@ -22,55 +23,29 @@ def process_data(data):
         raise Exception(f'Unknown file format: {e}')
     return df
         
-def process_filters(df, filters):
-    for kv in filters:
-        if '!=' in kv:
-            k, v = kv.split('!=')
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-            df = df[df[k] != v]
-        elif '=' in kv:
-            k, v = kv.split('=')
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-            df = df[df[k] == v]
-        elif '>' in kv:
-            k, v = kv.split('>')
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-            df = df[df[k] > v]
-        elif '<' in kv:
-            k, v = kv.split('<')
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-            df = df[df[k] < v]
-        elif ' in ' in kv:
-            k, v = kv.split(' in ')
-            values = v.split()
-            df = df[df[k].isin(values)]
-    return df
 
 def get_config(args=None, ini=None):
-    #cfg = {}
     cfg = os.environ
     if ini:
         config = ConfigParser()
         config.read(ini)
         cfg = {**cfg, **config['DEFAULT']}
+        if cfg.get('plot_type') in config.sections():
+            cfg = {**cfg, **config[cfg['plot_type']]}
+        elif args:
+            if args.plot_type in config.sections():
+                cfg = {**cfg, **config[args.plot_type]}
+            
         if 'filters' in cfg:
             cfg['filters'] = cfg['filters'].split('\n')
         if 'annotate' in cfg:
             cfg['annotate'] = cfg['annotate'].split('\n')
+        if 'palette' in cfg:
+            cfg['palette'] = {
+                k: v.strip() for k, v in (line.split(':') for line in cfg['palette'].split('\n') if line)
+            }
     if args:
-        kwargs = {k: v for k, v in vars(args).items() if v }
+        kwargs = {k: v for k, v in vars(args).items() if v } 
         # Do not overwrite filters, update
         if 'filters' in cfg and 'filters' in kwargs:
             kwargs['filters'] += cfg['filters']
@@ -90,9 +65,10 @@ def get_args():
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
     parser.add_argument('--filters', nargs='+', default=[], help='filter data')
+    parser.add_argument('--show', nargs='+', default=[], help='filter data')
     parser.add_argument('--title', default=None, help='Pass title to fig')
     parser.add_argument('--table', action='store_true', help='Print table')
-    parser.add_argument('--palette', default={}, help='Colors')
+    parser.add_argument('--palette', default=None, help='Colors')
 
     args = parser.parse_args()
     return args
@@ -117,9 +93,12 @@ def main():
         return
 
     if cfg.get('palette'):
-        palette = json.loads(cfg['palette'])
+        if isinstance(cfg['palette'], str):
+            palette = json.loads(cfg['palette'])
+        else:
+            palette = cfg['palette']
     else:
-        palette = {}
+        palette=None
         
 
     df = process_data(cfg['data'])
@@ -132,10 +111,12 @@ def main():
         annotate=cfg.get('annotate'),
         palette=palette,
     )
-    plotter.plot(title=cfg.get('title'))
+    plotter.plot(
+        **cfg,
+    )
     fig = plt.gcf()
-    fig.savefig(f"{cfg.get('title', '')}-{cfg['num']}-{cfg.get('cat', '')}.png")
     plt.show()
+    fig.savefig(f"{cfg['plot_type']}{cfg.get('title', '')}-{cfg['num']}-{cfg.get('cat', '')}.png")
 
     if cfg.get('table'):
         print(plotter.table())

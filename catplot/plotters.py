@@ -1,6 +1,8 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from .util import process_filters
+
 
 class Plotter:
     """
@@ -50,12 +52,13 @@ class Plotter:
         "To be implemented by subclass"
         raise NotImplementedError
 
-    def __call__(self, event):
+    def __call__(self, event, row=None):
         """
         Generic method that allows interaction with mouse
         to display information about a data point
         """
-        row = self.get_row(event)
+        if row is None:
+            row = self.get_row(event)
         if row is not None:
             fig = plt.gcf()
             ax = plt.gca()
@@ -220,6 +223,12 @@ class PointPlotter(Plotter):
         self.ax.set_title(kwargs.get('title'))
 
         self.ax.set_xticks([])
+    
+        if kwargs.get('show') is not None:
+            show_rows = process_filters(self.sorted, kwargs['show'])
+            for ind, row in show_rows.iterrows():
+                self(None, row)
+
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.fig.canvas.mpl_connect('motion_notify_event', self)
 

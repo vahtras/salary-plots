@@ -4,5 +4,5 @@ setup(
     name="catplot",
     packages=["catplot"],
     install_requires=["pandas", "seaborn"],
-    scripts=["scripts/boxplot"],
+    scripts=["scripts/boxplot", "scripts/pointplot"],
 )
