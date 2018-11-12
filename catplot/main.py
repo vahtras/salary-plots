@@ -111,9 +111,11 @@ def main():
         annotate=cfg.get('annotate'),
         palette=palette,
     )
+
     plotter.plot(
         **cfg,
     )
+
     fig = plt.gcf()
     plt.show()
     fig.savefig(f"{cfg['plot_type']}{cfg.get('title', '')}-{cfg['num']}-{cfg.get('cat', '')}.png")

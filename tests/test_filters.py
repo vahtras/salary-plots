@@ -30,6 +30,6 @@ def test_rm_0c(df):
     pdt.assert_frame_equal(calculated, expected)
 
 def test_isin(df):
-    calculated = util.process_filters(df, ("school in C D",))
+    calculated = util.process_filters(df, ("school@C,D",))
     expected = df[df.school.isin(['C','D'])]
     pdt.assert_frame_equal(calculated, expected)
