@@ -75,7 +75,7 @@ def test_plot_seaborn(mock_show, plxyz):
     with mock.patch('catplot.plotters.sns.boxplot') as mockplot:
         plxyz.plot()
         mockplot.assert_called_once_with(
-            data=plxyz.df, x="kr", y="school", hue="km",
+            data=plxyz.df, x="kr", y="school", hue="km", orient="h",
             whis=(10,90), order=["A", "B", "C"], 
             hue_order=["Kvinna", "Man"]
         )

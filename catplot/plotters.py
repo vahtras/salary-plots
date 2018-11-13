@@ -125,8 +125,14 @@ class BoxPlotter(Plotter):
         sns.boxplot(
             data=self.df, x=self.numerical, y=self.categorical, hue=self.hue,
             whis=(10, 90), order=self.categorical_values(),
-            hue_order=self.hue_values()
+            hue_order=self.hue_values(),
+            orient='h',
         )
+
+        if kwargs.get('show') is not None:
+            show_rows = process_filters(self.df, kwargs['show'])
+            for ind, row in show_rows.iterrows():
+                self(None, row)
 
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.fig.canvas.mpl_connect('motion_notify_event', self)

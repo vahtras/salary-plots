@@ -3,6 +3,7 @@
 Generate seaborn boxplots and strip plots with annotations
 """
 import os
+import re
 import json
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -112,13 +113,20 @@ def main():
         palette=palette,
     )
 
+    cfg['title' ] = cfg.get('title', ' '.join(cfg.get('filters', [])))
+
     plotter.plot(
         **cfg,
     )
 
     fig = plt.gcf()
     plt.show()
-    fig.savefig(f"{cfg['plot_type']}{cfg.get('title', '')}-{cfg['num']}-{cfg.get('cat', '')}.png")
+
+    figure_file  =  f"{cfg['plot_type']}"
+    figure_file += re.sub('/', ':', f"-{'-'.join(cfg.get('filters', []))}")
+    figure_file += f"-{cfg['num']}-{cfg.get('cat', '')}"
+    figure_file += ".png" 
+    fig.savefig(figure_file)
 
     if cfg.get('table'):
         print(plotter.table())
