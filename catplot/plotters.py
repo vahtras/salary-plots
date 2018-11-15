@@ -1,3 +1,5 @@
+import random
+from math import cos, sin, pi
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -52,7 +54,7 @@ class Plotter:
         "To be implemented by subclass"
         raise NotImplementedError
 
-    def __call__(self, event, row=None):
+    def __call__(self, event, row=None, xytext=(-50, 50)):
         """
         Generic method that allows interaction with mouse
         to display information about a data point
@@ -70,7 +72,7 @@ class Plotter:
                         if pd.notnull(row[k]) and row[k] != 0
                     ),
                     xy=self.get_coordinate(row),
-                    xytext=(-50, 50),
+                    xytext=xytext,
                     textcoords="offset points",
                     bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
                     arrowprops={'arrowstyle': '->'},
@@ -131,8 +133,13 @@ class BoxPlotter(Plotter):
 
         if kwargs.get('show') is not None:
             show_rows = process_filters(self.df, kwargs['show'])
-            for ind, row in show_rows.iterrows():
-                self(None, row)
+            show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
+            print(show_rows['Efternamn'])
+            for i, (ind, row) in enumerate(show_rows.iterrows()):
+                shift = random.choice(range(len(show_rows)))
+                p = 4*pi/6
+                xy = (60*cos(p+i*pi/3), 60*sin(p+i*pi/3))
+                self(None, row, xy)
 
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
         self.fig.canvas.mpl_connect('motion_notify_event', self)

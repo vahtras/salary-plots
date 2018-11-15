@@ -12,7 +12,7 @@ import numpy as np
 from configparser import ConfigParser
 from .demos import *
 from .plotters import plotters
-from .util import process_filters
+from .util import process_filters, filter_values
 
 def process_data(data):
     h, e = os.path.splitext(data)
@@ -70,6 +70,7 @@ def get_args():
     parser.add_argument('--title', default=None, help='Pass title to fig')
     parser.add_argument('--table', action='store_true', help='Print table')
     parser.add_argument('--palette', default=None, help='Colors')
+    parser.add_argument('--yo', nargs='+', default=[], type=int, help='filter data')
 
     args = parser.parse_args()
     return args
@@ -123,9 +124,15 @@ def main():
     plt.show()
 
     figure_file  =  f"{cfg['plot_type']}"
-    figure_file += re.sub('/', ':', f"-{'-'.join(cfg.get('filters', []))}")
-    figure_file += f"-{cfg['num']}-{cfg.get('cat', '')}"
+
+    values = [filter_values(f) for f in cfg.get('filters', [])]
+    figure_file += f"-{'_'.join(values)}"
+
+    figure_file += f"-{cfg['num']}"
+    if cfg.get('cat'):
+        figure_file += f"-{cfg.get('cat', '')}"
     figure_file += ".png" 
+
     fig.savefig(figure_file)
 
     if cfg.get('table'):

@@ -33,3 +33,10 @@ def test_isin(df):
     calculated = util.process_filters(df, ("school@C,D",))
     expected = df[df.school.isin(['C','D'])]
     pdt.assert_frame_equal(calculated, expected)
+
+@pytest.mark.parametrize("test_input,expected",[
+    ("school=A", "A"),
+    ("date>2018-10-01", "2018-10-01"),
+], ids=["=", ">"])
+def test_filter_values(test_input, expected):
+    assert util.filter_values(test_input) == expected
