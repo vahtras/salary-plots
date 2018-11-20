@@ -8,16 +8,16 @@ def box_demo():
     """
     Boxplot demo
     """
-    sample = 10
+    sample = 100
     values = np.random.randint(20000, 40000, sample)
-    genders = np.random.choice(['Kvinna', 'Man'], sample)
-    units = np.random.choice(['A', 'B', 'C'], sample)
+    genders = np.random.choice(['Female', 'Male'], sample)
+    units = np.random.choice(['Dept A', 'Dept B', 'Dept C'], sample)
 
-    df = pd.DataFrame(dict(values=values, genders=genders, units=units))
+    df = pd.DataFrame(dict(Value=values, Gender=genders, Unit=units))
 
     box_plotter = BoxPlotter(
-        df, 'values', categorical='genders', hue='units',
-        annotate=('units', 'values', 'genders')
+        df, 'Value', categorical='Unit', hue='Gender',
+        annotate=('Unit', 'Value', 'Gender')
     )
     box_plotter.plot()
     box_plotter.ax.set_title("Box plot demo")
@@ -29,8 +29,8 @@ def point_plot_demo():
     """
     sample = 10
     values = np.random.randint(20000, 40000, sample)
-    genders = np.random.choice(['Kvinna', 'Man'], sample)
-    units = np.random.choice(['A', 'B', 'C'], sample)
+    genders = np.random.choice(['Female', 'Male'], sample)
+    units = np.random.choice(['Dept A', 'Dept B', 'Dept C'], sample)
 
     df = pd.DataFrame(dict(values=values, genders=genders, units=units))
 

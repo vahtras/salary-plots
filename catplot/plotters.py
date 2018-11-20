@@ -133,12 +133,14 @@ class BoxPlotter(Plotter):
 
         if kwargs.get('show') is not None:
             show_rows = process_filters(self.df, kwargs['show'])
-            show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
+            #show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
             print(show_rows['Efternamn'])
             for i, (ind, row) in enumerate(show_rows.iterrows()):
                 shift = random.choice(range(len(show_rows)))
-                p = 4*pi/6
-                xy = (60*cos(p+i*pi/3), 60*sin(p+i*pi/3))
+                p = 2*pi/6
+                #xy = (60*cos(p+i*pi/4), 60*sin(p+i*pi/4))
+                #xy = (5, 70)
+                xy = (-50, 50*(0.5+0.5*i))
                 self(None, row, xy)
 
         self.fig.canvas.mpl_connect('button_press_event', self.on_click)
@@ -231,6 +233,7 @@ class PointPlotter(Plotter):
             y=self.numerical,
             hue=self.categorical,
             palette=self.palette,
+            ax=self.ax
             ).set_xticklabels("")
         self.ax.legend(loc='upper left')
         self.ax.set_title(kwargs.get('title'))

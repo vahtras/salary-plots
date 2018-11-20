@@ -130,7 +130,7 @@ def main():
 
     figure_file += f"-{cfg['num']}"
     if cfg.get('cat'):
-        figure_file += f"-{cfg.get('cat', '')}"
+        figure_file += re.sub('/', ':', f"-{cfg.get('cat', '')}")
     figure_file += ".png" 
 
     fig.savefig(figure_file)
