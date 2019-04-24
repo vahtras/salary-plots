@@ -62,15 +62,20 @@ class Plotter:
         if row is None:
             row = self.get_row(event)
         if row is not None:
+            try:
+                info = "\n".join(
+                        f"{row[k]}"
+                        for k in self.annotate
+                        if pd.notnull(row[k]) and row[k] != 0
+                    )
+            except KeyError:
+                print(self.df.columns)
+                raise SystemExit
             fig = plt.gcf()
             ax = plt.gca()
             if self.annotate:
                 ax.annotate(
-                    "\n".join(
-                        f"{row[k]}"
-                        for k in self.annotate
-                        if pd.notnull(row[k]) and row[k] != 0
-                    ),
+                    info,
                     xy=self.get_coordinate(row),
                     xytext=xytext,
                     textcoords="offset points",
