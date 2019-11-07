@@ -136,6 +136,7 @@ def main():
     fig.savefig(figure_file)
 
     if cfg.get('table'):
+        plotter.table().to_csv(figure_file.strip('png') + 'csv')
         print(plotter.table())
 
 if __name__ == "__main__":
