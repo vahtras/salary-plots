@@ -99,7 +99,7 @@ class Plotter:
             ).drop('std', axis=1)
         else:
            stat = self.df[self.numerical].describe(percentiles=percentiles).drop('std')
-        return stat.astype(int)
+        return stat#.astype(int)
 
 
 class BoxPlotter(Plotter):
@@ -139,7 +139,6 @@ class BoxPlotter(Plotter):
         if kwargs.get('show') is not None:
             show_rows = process_filters(self.df, kwargs['show'])
             #show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
-            print(show_rows['Efternamn'])
             for i, (ind, row) in enumerate(show_rows.iterrows()):
                 shift = random.choice(range(len(show_rows)))
                 p = 2*pi/6

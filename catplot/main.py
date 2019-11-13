@@ -6,13 +6,12 @@ import os
 import re
 import json
 import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
-import numpy as np
 from configparser import ConfigParser
-from .demos import *
+from .demos import box_demo, point_plot_demo
 from .plotters import plotters
 from .util import process_filters, filter_values
+
 
 def process_data(data):
     h, e = os.path.splitext(data)
@@ -23,7 +22,7 @@ def process_data(data):
     else:
         raise Exception(f'Unknown file format: {e}')
     return df
-        
+
 
 def get_config(args=None, ini=None):
     cfg = os.environ
@@ -36,22 +35,26 @@ def get_config(args=None, ini=None):
         elif args:
             if args.plot_type in config.sections():
                 cfg = {**cfg, **config[args.plot_type]}
-            
+
         if 'filters' in cfg:
             cfg['filters'] = cfg['filters'].split('\n')
         if 'annotate' in cfg:
             cfg['annotate'] = cfg['annotate'].split('\n')
         if 'palette' in cfg:
             cfg['palette'] = {
-                k: v.strip() for k, v in (line.split(':') for line in cfg['palette'].split('\n') if line)
+                k: v.strip() for k, v in (
+                    line.split(':') for line in cfg['palette'].split('\n')
+                    if line
+                    )
             }
     if args:
-        kwargs = {k: v for k, v in vars(args).items() if v } 
+        kwargs = {k: v for k, v in vars(args).items() if v is not None}
         # Do not overwrite filters, update
         if 'filters' in cfg and 'filters' in kwargs:
             kwargs['filters'] += cfg['filters']
         cfg = {**cfg, **kwargs}
     return cfg
+
 
 def get_args():
 
@@ -59,21 +62,32 @@ def get_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', help='Data file (excel/csv)')
-    parser.add_argument('--box-plot-demo', action='store_true', help='Box demo')
-    parser.add_argument('--point-plot-demo', action='store_true', help='Point demo')
-    parser.add_argument('--plot-type', choices=('box', 'point'), help='Plot type')
+    parser.add_argument(
+        '--box-plot-demo', action='store_true', help='Box demo'
+    )
+    parser.add_argument(
+        '--point-plot-demo', action='store_true', help='Point demo'
+    )
+    parser.add_argument(
+        '--plot-type', choices=('box', 'point'), help='Plot type'
+    )
     parser.add_argument('--num', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
-    parser.add_argument('--annotate', nargs='+', default=(), help='pop-up info')
+    parser.add_argument(
+        '--annotate', nargs='+', default=(), help='pop-up info'
+    )
     parser.add_argument('--filters', nargs='+', default=[], help='filter data')
     parser.add_argument('--show', nargs='+', default=[], help='filter data')
     parser.add_argument('--title', default=None, help='Pass title to fig')
-    parser.add_argument('--table', action='store_true', help='Print table')
+    parser.add_argument('--table', type=int, default=None, help='Print table')
     parser.add_argument('--palette', default=None, help='Colors')
-    parser.add_argument('--yo', nargs='+', default=[], type=int, help='filter data')
+    parser.add_argument(
+        '--yo', nargs='+', default=[], type=int, help='filter data'
+    )
 
     args = parser.parse_args()
     return args
+
 
 def main():
     """
@@ -100,8 +114,7 @@ def main():
         else:
             palette = cfg['palette']
     else:
-        palette=None
-        
+        palette = None
 
     df = process_data(cfg['data'])
     df = process_filters(df, cfg.get('filters', []))
@@ -114,7 +127,7 @@ def main():
         palette=palette,
     )
 
-    cfg['title' ] = cfg.get('title', ' '.join(cfg.get('filters', [])))
+    cfg['title'] = cfg.get('title', ' '.join(cfg.get('filters', [])))
 
     plotter.plot(
         **cfg,
@@ -123,21 +136,30 @@ def main():
     fig = plt.gcf()
     plt.show()
 
-    figure_file  =  f"{cfg['plot_type']}"
+    figure_file = f"{cfg['plot_type']}"
 
     values = [filter_values(f) for f in cfg.get('filters', [])]
     figure_file += f"-{'_'.join(values)}"
+    csv_file = f"{'_'.join(values)}"
 
     figure_file += f"-{cfg['num']}"
     if cfg.get('cat'):
-        figure_file += re.sub('/', ':', f"-{cfg.get('cat', '')}")
-    figure_file += ".png" 
+        cats = re.sub('/', ':', f"-{cfg.get('cat', '')}")
+        figure_file += cats
+        csv_file += cats
+    figure_file += ".png"
+    csv_file += ".csv"
 
     fig.savefig(figure_file)
 
-    if cfg.get('table'):
-        plotter.table().to_csv(figure_file.strip('png') + 'csv')
-        print(plotter.table())
+    if cfg.get('table') is not None:
+        precision = cfg.get('table')
+        plotter.table().to_csv(csv_file)
+        if precision > 0:
+            print(plotter.table().round(precision))
+        else:
+            print(plotter.table().astype(int))
+
 
 if __name__ == "__main__":
     main()
