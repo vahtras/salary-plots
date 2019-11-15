@@ -71,7 +71,7 @@ def get_args():
     parser.add_argument(
         '--plot-type', choices=('box', 'point'), help='Plot type'
     )
-    parser.add_argument('--num', help='Numerical label')
+    parser.add_argument('--num', nargs='+', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
     parser.add_argument(
         '--annotate', nargs='+', default=(), help='pop-up info'
@@ -95,6 +95,9 @@ def main():
     """
 
     cfg = get_config(get_args(), ini='config.ini')
+
+    if isinstance(cfg.get('num'), list):
+        cfg['num'] = ' '.join(cfg['num'])
 
     if cfg.get('box_plot_demo'):
         box_demo()
@@ -143,6 +146,7 @@ def main():
     csv_file = f"{'_'.join(values)}"
 
     figure_file += f"-{cfg['num']}"
+    csv_file += f"-{cfg['num']}"
     if cfg.get('cat'):
         cats = re.sub('/', ':', f"-{cfg.get('cat', '')}")
         figure_file += cats
@@ -154,11 +158,13 @@ def main():
 
     if cfg.get('table') is not None:
         precision = cfg.get('table')
-        plotter.table().to_csv(csv_file)
         if precision > 0:
-            print(plotter.table().round(precision))
+            table = plotter.table().round(precision)
         else:
-            print(plotter.table().astype(int))
+            table = plotter.table().astype(int)
+        print(table)
+        table.to_csv(csv_file)
+        table.to_excel(csv_file.strip('csv') + 'xlsx')
 
 
 if __name__ == "__main__":
