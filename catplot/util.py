@@ -40,7 +40,7 @@ def process_filters(df, filters):
 
 
 def filter_values(s):
-    regex = r'[/\s\w]+[=>]([-\s\w()]+)'
+    regex = r'[/\s\w.]+[=>]([-\s\w()]+)'
     m = re.match(regex, s)
     if m:
         return m.groups(1)[0]

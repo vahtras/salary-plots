@@ -93,13 +93,19 @@ class Plotter:
 
     def table(self):
         percentiles = (.1, .25, .75, .9)
+        self.df['alla'] = 'Alla'
+        all_stat = self.df.groupby('alla')[self.numerical].describe(
+            percentiles=percentiles
+        )
         if self.categorical:
-           stat = self.df.groupby(self.categorical)[self.numerical].describe(
+            grouped_stat = self.df.groupby(self.categorical)[self.numerical].describe(
                 percentiles=percentiles
-            ).drop('std', axis=1)
+            )
+            stat = pd.concat([grouped_stat, all_stat])
         else:
-           stat = self.df[self.numerical].describe(percentiles=percentiles).drop('std')
-        return stat#.astype(int)
+            stat = all_stat
+
+        return stat
 
 
 class BoxPlotter(Plotter):

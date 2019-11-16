@@ -44,7 +44,8 @@ def test_isin(df):
         ("school=A", "A"),
         ("date>2018-10-01", "2018-10-01"),
         ("Chefsbef/annan bef=Chef (1)", "Chef (1)"),
+        ("Grupp.nivå=4", "4"),
     ],
-    ids=["=", ">", "()"])
+    ids=["=", ">", "()", "G"])
 def test_filter_values(test_input, expected):
     assert util.filter_values(test_input) == expected

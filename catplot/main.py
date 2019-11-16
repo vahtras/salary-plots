@@ -48,7 +48,7 @@ def get_config(args=None, ini=None):
                     )
             }
     if args:
-        kwargs = {k: v for k, v in vars(args).items() if v is not None}
+        kwargs = {k: v for k, v in vars(args).items() if v}
         # Do not overwrite filters, update
         if 'filters' in cfg and 'filters' in kwargs:
             kwargs['filters'] += cfg['filters']
@@ -156,15 +156,14 @@ def main():
 
     fig.savefig(figure_file)
 
-    if cfg.get('table') is not None:
+    if cfg.get('table'):
         precision = cfg.get('table')
-        if precision > 0:
-            table = plotter.table().round(precision)
-        else:
-            table = plotter.table().astype(int)
-        print(table)
-        table.to_csv(csv_file)
-        table.to_excel(csv_file.strip('csv') + 'xlsx')
+        table = plotter.table().round(precision)
+    else:
+        table = plotter.table().astype(int)
+    print(table)
+    table.to_csv(csv_file)
+    table.to_excel(csv_file.strip('csv') + 'xlsx')
 
 
 if __name__ == "__main__":
