@@ -140,17 +140,21 @@ def main():
     plt.show()
 
     figure_file = f"{cfg['plot_type']}"
-
-    values = [filter_values(f) for f in cfg.get('filters', [])]
-    figure_file += f"-{'_'.join(values)}"
-    csv_file = f"{'_'.join(values)}"
+    csv_file = "tab"
 
     figure_file += f"-{cfg['num']}"
     csv_file += f"-{cfg['num']}"
+
     if cfg.get('cat'):
         cats = re.sub('/', ':', f"-{cfg.get('cat', '')}")
         figure_file += cats
         csv_file += cats
+
+    values = [filter_values(f) for f in cfg.get('filters', [])]
+    if values:
+        figure_file += f"-{'_'.join(values)}"
+        csv_file += f"-{'_'.join(values)}"
+
     figure_file += ".png"
     csv_file += ".csv"
 
@@ -160,7 +164,7 @@ def main():
         precision = cfg.get('table')
         table = plotter.table().round(precision)
     else:
-        table = plotter.table().astype(int)
+        table = plotter.table().fillna(0).round().astype(int)
     print(table)
     table.to_csv(csv_file)
     table.to_excel(csv_file.strip('csv') + 'xlsx')
