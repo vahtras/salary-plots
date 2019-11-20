@@ -1,8 +1,9 @@
-import random
-from math import cos, sin, pi
+import webbrowser
+
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+
 from .util import process_filters
 
 
@@ -22,17 +23,14 @@ class Plotter:
         self.df = df
         self.numerical = numerical
 
-        default = dict(
-            categorical=None,
-            annotate=None
-            )
+        default = dict(categorical=None, annotate=None)
         settings = {**default, **kwargs}
-        self.categorical = settings.get('categorical')
-        self.annotate = settings.get('annotate', numerical)
+        self.categorical = settings.get("categorical")
+        self.annotate = settings.get("annotate", numerical)
         self.fig = None
         self.ax = None
         self.sorted = None
-        self.palette = settings.get('palette')
+        self.palette = settings.get("palette")
 
     def categorical_values(self):
         """
@@ -64,10 +62,10 @@ class Plotter:
         if row is not None:
             try:
                 info = "\n".join(
-                        f"{row[k]}"
-                        for k in self.annotate
-                        if pd.notnull(row[k]) and row[k] != 0
-                    )
+                    f"{row[k]}"
+                    for k in self.annotate
+                    if pd.notnull(row[k]) and row[k] != 0
+                )
             except KeyError:
                 print(self.df.columns)
                 raise SystemExit
@@ -79,28 +77,40 @@ class Plotter:
                     xy=self.get_coordinate(row),
                     xytext=xytext,
                     textcoords="offset points",
-                    bbox={"boxstyle": "square", "fc": "w", "lw": 2, "pad": 0.6},
-                    arrowprops={'arrowstyle': '->'},
-                    size='x-large',
+                    bbox={
+                        "boxstyle": "square",
+                        "fc": "w",
+                        "lw": 2,
+                        "pad": 0.6,
+                    },
+                    arrowprops={"arrowstyle": "->"},
+                    size="x-large",
                 )
             fig.canvas.draw_idle()
+            return row
 
     def on_click(self, event):
         """
         Action when mouse is clicked
         """
         print(event.xdata, event.ydata)
+        row = self.__call__(event)
+        if row is not None:
+            print(row)
+            user = row["KTH-Epostadress"].strip("@kth.se")
+            url = f"https://kth.se/profile/{user}"
+            webbrowser.open_new_tab(url)
 
     def table(self):
-        percentiles = (.1, .25, .75, .9)
-        self.df['alla'] = 'Alla'
-        all_stat = self.df.groupby('alla')[self.numerical].describe(
+        percentiles = (0.1, 0.25, 0.75, 0.9)
+        self.df["alla"] = "Alla"
+        all_stat = self.df.groupby("alla")[self.numerical].describe(
             percentiles=percentiles
         )
         if self.categorical:
-            grouped_stat = self.df.groupby(self.categorical)[self.numerical].describe(
-                percentiles=percentiles
-            )
+            grouped_stat = self.df.groupby(self.categorical)[
+                self.numerical
+            ].describe(percentiles=percentiles)
             stat = pd.concat([grouped_stat, all_stat])
         else:
             stat = all_stat
@@ -118,7 +128,7 @@ class BoxPlotter(Plotter):
         Iniitalize for boxplot
         """
         super().__init__(df, numerical, **kwargs)
-        self.hue = kwargs.get('hue')
+        self.hue = kwargs.get("hue")
         self.df["y"] = self.set_y()
 
     def hue_values(self):
@@ -136,27 +146,31 @@ class BoxPlotter(Plotter):
         """
         self.fig, self.ax = plt.subplots(figsize=(16, 9))
         sns.boxplot(
-            data=self.df, x=self.numerical, y=self.categorical, hue=self.hue,
-            whis=(10, 90), order=self.categorical_values(),
+            data=self.df,
+            x=self.numerical,
+            y=self.categorical,
+            hue=self.hue,
+            whis=(10, 90),
+            order=self.categorical_values(),
             hue_order=self.hue_values(),
-            orient='h',
+            orient="h",
         )
 
-        if kwargs.get('show') is not None:
-            show_rows = process_filters(self.df, kwargs['show'])
-            #show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
+        if kwargs.get("show") is not None:
+            show_rows = process_filters(self.df, kwargs["show"])
+            # show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
             for i, (ind, row) in enumerate(show_rows.iterrows()):
-                shift = random.choice(range(len(show_rows)))
-                p = 2*pi/6
-                #xy = (60*cos(p+i*pi/4), 60*sin(p+i*pi/4))
-                #xy = (5, 70)
-                xy = (-50, 50*(0.5+0.5*i))
+                # shift = random.choice(range(len(show_rows)))
+                # p = 2 * pi / 6
+                # xy = (60*cos(p+i*pi/4), 60*sin(p+i*pi/4))
+                # xy = (5, 70)
+                xy = (-50, 50 * (0.5 + 0.5 * i))
                 self(None, row, xy)
 
-        self.fig.canvas.mpl_connect('button_press_event', self.on_click)
-        self.fig.canvas.mpl_connect('motion_notify_event', self)
+        self.fig.canvas.mpl_connect("button_press_event", self.on_click)
+        self.fig.canvas.mpl_connect("motion_notify_event", self)
 
-        self.ax.set_title(kwargs.get('title'))
+        self.ax.set_title(kwargs.get("title"))
 
     def get_row(self, event):
         """
@@ -165,11 +179,14 @@ class BoxPlotter(Plotter):
         """
         row = None
         if event.xdata is not None and event.ydata is not None:
-            in_x = (self.df[self.numerical].max() - 
-                    self.df[self.numerical].min())*.01
-            in_y = (self.df.y.max() - self.df.y.min() + 1)*.01
-            is_near_x = (self.df[self.numerical] - event.xdata)**2 < in_x**2
-            is_near_y = (self.df.y - event.ydata)**2 < in_y**2
+            in_x = (
+                self.df[self.numerical].max() - self.df[self.numerical].min()
+            ) * 0.01
+            in_y = (self.df.y.max() - self.df.y.min() + 1) * 0.01
+            is_near_x = (
+                self.df[self.numerical] - event.xdata
+            ) ** 2 < in_x ** 2
+            is_near_y = (self.df.y - event.ydata) ** 2 < in_y ** 2
             selected = is_near_x & is_near_y
             if selected.any():
                 row = self.df[selected].iloc[0]
@@ -180,14 +197,16 @@ class BoxPlotter(Plotter):
         set expected y coordinate of categorical data point
         """
         if self.categorical is None:
-            return pd.Series(len(self.df)*[.0], index=self.df.index)
+            return pd.Series(len(self.df) * [0.0], index=self.df.index)
         y_labels = sorted(list(self.df[self.categorical].unique()))
         y_values = pd.Series(
-            (y_labels.index(row[self.categorical])
-             if pd.notnull(row[self.categorical]) else -1
-             for _, row in self.df.iterrows()
+            (
+                y_labels.index(row[self.categorical])
+                if pd.notnull(row[self.categorical])
+                else -1
+                for _, row in self.df.iterrows()
             ),
-            index=self.df.index
+            index=self.df.index,
         )
         if self.hue:
             y_values += self.y_shift()
@@ -200,16 +219,17 @@ class BoxPlotter(Plotter):
         if self.hue:
             y_sublabels = sorted(list(self.df[self.hue].unique()))
             y_subvalues = pd.Series(
-                (y_sublabels.index(row[self.hue])
-                 for _, row in self.df.iterrows()
+                (
+                    y_sublabels.index(row[self.hue])
+                    for _, row in self.df.iterrows()
                 ),
-                index=self.df.index
+                index=self.df.index,
             )
             multiplicity = len(y_sublabels)
-            level = (multiplicity-1)/2
-            level_shift = (y_subvalues-level)*.8/multiplicity
+            level = (multiplicity - 1) / 2
+            level_shift = (y_subvalues - level) * 0.8 / multiplicity
         else:
-            level_shift = pd.Series(len(self.df)*[0.], index=self.df.index)
+            level_shift = pd.Series(len(self.df) * [0.0], index=self.df.index)
 
         return level_shift
 
@@ -218,8 +238,6 @@ class BoxPlotter(Plotter):
         Return coordinates of data point associated with a dataframe row
         """
         return (row[self.numerical], row.y)
-
-
 
 
 class PointPlotter(Plotter):
@@ -232,9 +250,9 @@ class PointPlotter(Plotter):
         Calls the Seaborn plot function and connects the plot for interactive
         with mouse
         """
-        self.sorted = self.df.sort_values(
-            self.numerical
-        ).reset_index(drop=True)
+        self.sorted = self.df.sort_values(self.numerical).reset_index(
+            drop=True
+        )
 
         self.fig, self.ax = plt.subplots(figsize=(16, 9))
         sns.stripplot(
@@ -243,20 +261,20 @@ class PointPlotter(Plotter):
             y=self.numerical,
             hue=self.categorical,
             palette=self.palette,
-            ax=self.ax
-            ).set_xticklabels("")
-        self.ax.legend(loc='upper left')
-        self.ax.set_title(kwargs.get('title'))
+            ax=self.ax,
+        ).set_xticklabels("")
+        self.ax.legend(loc="upper left")
+        self.ax.set_title(kwargs.get("title"))
 
         self.ax.set_xticks([])
-    
-        if kwargs.get('show') is not None:
-            show_rows = process_filters(self.sorted, kwargs['show'])
+
+        if kwargs.get("show") is not None:
+            show_rows = process_filters(self.sorted, kwargs["show"])
             for ind, row in show_rows.iterrows():
                 self(None, row)
 
-        self.fig.canvas.mpl_connect('button_press_event', self.on_click)
-        self.fig.canvas.mpl_connect('motion_notify_event', self)
+        self.fig.canvas.mpl_connect("button_press_event", self.on_click)
+        self.fig.canvas.mpl_connect("motion_notify_event", self)
 
     def get_coordinate(self, row):
         """
@@ -279,4 +297,5 @@ class PointPlotter(Plotter):
                     row = self.sorted.loc[nearest_x]
         return row
 
-plotters = {'box': BoxPlotter, 'point': PointPlotter}
+
+plotters = {"box": BoxPlotter, "point": PointPlotter}
