@@ -154,6 +154,9 @@ class BoxPlotter(Plotter):
             order=self.categorical_values(),
             hue_order=self.hue_values(),
             orient="h",
+            showmeans=True,
+            meanline=True,
+            meanprops={'color': 'white'},
         )
 
         if kwargs.get("show") is not None:
@@ -262,6 +265,7 @@ class PointPlotter(Plotter):
             hue=self.categorical,
             palette=self.palette,
             ax=self.ax,
+            size=10,
         ).set_xticklabels("")
         self.ax.legend(loc="upper left")
         self.ax.set_title(kwargs.get("title"))

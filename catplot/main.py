@@ -73,6 +73,7 @@ def get_args():
     )
     parser.add_argument('--num', nargs='+', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
+    parser.add_argument('--hue', help='Subcategorical label')
     parser.add_argument(
         '--annotate', nargs='+', default=(), help='pop-up info'
     )
@@ -86,6 +87,7 @@ def get_args():
     )
 
     args = parser.parse_args()
+    print(args)
     return args
 
 
@@ -126,6 +128,7 @@ def main():
         df,
         cfg['num'],
         categorical=cfg.get('cat'),
+        hue=cfg.get('hue'),
         annotate=cfg.get('annotate'),
         palette=palette,
     )
@@ -137,6 +140,7 @@ def main():
     )
 
     fig = plt.gcf()
+    plt.grid(True)
     plt.show()
 
     figure_file = f"{cfg['plot_type']}"
