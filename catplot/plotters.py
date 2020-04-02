@@ -103,12 +103,6 @@ class Plotter:
         Action when mouse is clicked
         """
         print(event.xdata, event.ydata)
-        row = self.__call__(event)
-        if row is not None:
-            print(row)
-            user = row["KTH-Epostadress"].strip("@kth.se")
-            url = f"https://kth.se/profile/{user}"
-            webbrowser.open_new_tab(url)
 
     def table(self):
         percentiles = (0.1, 0.25, 0.75, 0.9)
@@ -373,6 +367,10 @@ class StripPlotter(Plotter):
             if selected.any():
                 row = self.df[selected].iloc[0]
         return row
+
+    def get_coordinate(self, row):
+        "Get stripplot coordinates"
+        return (row.x, row[self.numerical])
 
 
 plotters = {"box": BoxPlotter, "point": PointPlotter, "strip": StripPlotter}
