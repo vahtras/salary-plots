@@ -28,6 +28,7 @@ class Plotter:
         self.categorical = settings.get("categorical")
         self.hue = settings.get("hue")
         self.annotate = settings.get("annotate", numerical)
+        self.annotations = []
         self.fig = None
         self.ax = None
         self.sorted = None
@@ -81,7 +82,7 @@ class Plotter:
             fig = plt.gcf()
             ax = plt.gca()
             if self.annotate:
-                ax.annotate(
+                self.annotations.append(ax.annotate(
                     info,
                     xy=self.get_coordinate(row),
                     xytext=xytext,
@@ -94,15 +95,23 @@ class Plotter:
                     },
                     arrowprops={"arrowstyle": "->"},
                     size="x-large",
-                )
+                ))
             fig.canvas.draw_idle()
             return row
+        else:
+            for a in self.annotations:
+                a.remove()
+            self.annotations.clear()
 
     def on_click(self, event):
         """
         Action when mouse is clicked
         """
         print(event.xdata, event.ydata)
+        for a in self.annotations:
+            a.remove()
+        self.annotations.clear()
+        plt.gcf().canvas.draw_idle()
 
     def table(self):
         percentiles = (0.1, 0.25, 0.75, 0.9)
