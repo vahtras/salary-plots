@@ -9,5 +9,7 @@ setup(
         "scripts/boxplot-demo",
         "scripts/pointplot",
         "scripts/pointplot-demo",
+        "scripts/stripplot",
+        "scripts/stripplot-demo",
     ],
 )

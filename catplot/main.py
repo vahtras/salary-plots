@@ -8,7 +8,7 @@ import json
 import matplotlib.pyplot as plt
 import pandas as pd
 from configparser import ConfigParser
-from .demos import box_demo, point_plot_demo
+from .demos import boxplot_demo, pointplot_demo, stripplot_demo
 from .plotters import plotters
 from .util import process_filters, filter_values
 
@@ -63,13 +63,16 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', help='Data file (excel/csv)')
     parser.add_argument(
-        '--box-plot-demo', action='store_true', help='Box demo'
+        '--boxplot-demo', action='store_true', help='Box demo'
     )
     parser.add_argument(
-        '--point-plot-demo', action='store_true', help='Point demo'
+        '--pointplot-demo', action='store_true', help='Point demo'
     )
     parser.add_argument(
-        '--plot-type', choices=('box', 'point'), help='Plot type'
+        '--stripplot-demo', action='store_true', help='Strip demo'
+    )
+    parser.add_argument(
+        '--plot-type', choices=('box', 'point', 'strip'), help='Plot type'
     )
     parser.add_argument('--num', nargs='+', help='Numerical label')
     parser.add_argument('--cat', help='Categorical label')
@@ -101,12 +104,16 @@ def main():
     if isinstance(cfg.get('num'), list):
         cfg['num'] = ' '.join(cfg['num'])
 
-    if cfg.get('box_plot_demo'):
-        box_demo()
+    if cfg.get('boxplot_demo'):
+        boxplot_demo()
         return
 
-    if cfg.get('point_plot_demo'):
-        point_plot_demo()
+    if cfg.get('pointplot_demo'):
+        pointplot_demo()
+        return
+
+    if cfg.get('stripplot_demo'):
+        stripplot_demo()
         return
 
     if not cfg['data']:

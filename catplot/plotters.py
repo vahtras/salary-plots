@@ -26,6 +26,7 @@ class Plotter:
         default = dict(categorical=None, annotate=None)
         settings = {**default, **kwargs}
         self.categorical = settings.get("categorical")
+        self.hue = settings.get("hue")
         self.annotate = settings.get("annotate", numerical)
         self.fig = None
         self.ax = None
@@ -39,6 +40,14 @@ class Plotter:
         if self.categorical is None:
             return []
         return sorted(list(self.df[self.categorical].dropna().unique()))
+
+    def hue_values(self):
+        """
+        Returns list of values associated with the subcategory (hue)
+        """
+        if self.hue is None:
+            return []
+        return sorted(list(self.df[self.hue].dropna().unique()))
 
     def plot(self, **kwargs):
         "To be implemented by subclass"
@@ -302,4 +311,68 @@ class PointPlotter(Plotter):
         return row
 
 
-plotters = {"box": BoxPlotter, "point": PointPlotter}
+class StripPlotter(Plotter):
+
+    def __init__(self, df, numerical, **kwargs):
+        """
+        Initialize for stripplot
+        """
+        super().__init__(df, numerical, **kwargs)
+        self.hue = kwargs.get("hue")
+        self.df["x"] = self.set_x()
+
+    def set_x(self):
+        """
+        set expected x coordinate of categorical data point
+        """
+        if self.categorical is None:
+            return pd.Series(len(self.df) * [0.0], index=self.df.index)
+        x_labels = sorted(list(self.df[self.categorical].unique()))
+        x_values = pd.Series(
+            (
+                x_labels.index(row[self.categorical])
+                if pd.notnull(row[self.categorical])
+                else -1
+                for _, row in self.df.iterrows()
+            ),
+            index=self.df.index,
+        )
+
+        return x_values
+
+    def plot(self, **kwargs):
+        """
+        Calls Seaborn strip function and connects the plot for interaction with
+        mouse
+        """
+        self.fig, self.ax = plt.subplots(figsize=(16, 9))
+        sns.stripplot(
+            data=self.df,
+            x=self.categorical,
+            y=self.numerical,
+            hue=self.hue,
+            order=self.categorical_values(),
+            hue_order=self.hue_values(),
+            orient='v',
+            jitter=0,
+        )
+
+        self.fig.canvas.mpl_connect("button_press_event", self.on_click)
+        self.fig.canvas.mpl_connect("motion_notify_event", self)
+
+    def get_row(self, event):
+        row = None
+        if event.xdata is not None and event.ydata is not None:
+            in_y = (
+                self.df[self.numerical].max() - self.df[self.numerical].min()
+                ) * 0.01
+            in_x = (self.df.x.max() - self.df.x.min() + 1) * 0.01
+            is_near_y = (self.df[self.numerical] - event.ydata)**2 < in_y**2
+            is_near_x = (self.df.x - event.xdata)**2 < in_x**2
+            selected = is_near_x & is_near_y
+            if selected.any():
+                row = self.df[selected].iloc[0]
+        return row
+
+
+plotters = {"box": BoxPlotter, "point": PointPlotter, "strip": StripPlotter}

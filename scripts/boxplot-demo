@@ -1,4 +1,4 @@
 #!/bin/bash
-python -m catplot.main --box-plot-demo
+python -m catplot.main --boxplot-demo
 
 

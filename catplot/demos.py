@@ -2,9 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .plotters import BoxPlotter, PointPlotter
+from .plotters import BoxPlotter, PointPlotter, StripPlotter
 
-def box_demo():
+
+def boxplot_demo():
     """
     Boxplot demo
     """
@@ -23,7 +24,8 @@ def box_demo():
     box_plotter.ax.set_title("Box plot demo")
     plt.show()
 
-def point_plot_demo():
+
+def pointplot_demo():
     """
     Pointplot demo
     """
@@ -42,4 +44,27 @@ def point_plot_demo():
     )
     point_plotter.plot()
     point_plotter.ax.set_title("Point plot demo")
+    plt.show()
+
+
+def stripplot_demo():
+    """
+    Stripplot demo
+    """
+    sample = 10
+    values = np.random.randint(20000, 40000, sample)
+    genders = np.random.choice(['Female', 'Male'], sample)
+    units = np.random.choice(['Dept A', 'Dept B', 'Dept C'], sample)
+
+    df = pd.DataFrame(dict(values=values, genders=genders, units=units))
+
+    strip_plotter = StripPlotter(
+        df,
+        numerical='values',
+        categorical='units',
+        hue='genders',
+        annotate=('units', 'values', 'genders')
+    )
+    strip_plotter.plot()
+    strip_plotter.ax.set_title("Strip plot demo")
     plt.show()
