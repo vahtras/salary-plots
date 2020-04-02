@@ -115,6 +115,7 @@ def test_plot_seaborn(mock_show, plxyz):
             whis=(10, 90),
             order=["A", "B", "C"],
             hue_order=["Kvinna", "Man"],
+            showmeans=True,
             meanline=True,
             meanprops={'color': 'white'},
         )
