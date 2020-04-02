@@ -46,3 +46,7 @@ def generate_demo_data():
     })
     print(data)
     data.to_csv('demo_data.csv', index=False)
+
+
+if __name__ == "__main__":
+    generate_demo_data()
