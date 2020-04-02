@@ -23,7 +23,7 @@ class Plotter:
         self.df = df
         self.numerical = numerical
 
-        default = dict(categorical=None, annotate=None)
+        default = dict(categorical=None, annotate=())
         settings = {**default, **kwargs}
         self.categorical = settings.get("categorical")
         self.hue = settings.get("hue")

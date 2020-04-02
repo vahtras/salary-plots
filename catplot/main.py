@@ -136,7 +136,7 @@ def main():
         cfg['num'],
         categorical=cfg.get('cat'),
         hue=cfg.get('hue'),
-        annotate=cfg.get('annotate'),
+        annotate=cfg.get('annotate', ()),
         palette=palette,
     )
 
