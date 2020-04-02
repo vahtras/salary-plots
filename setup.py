@@ -7,6 +7,7 @@ setup(
     scripts=[
         "scripts/boxplot",
         "scripts/boxplot-demo",
-        "scripts/pointplot"
+        "scripts/pointplot",
+        "scripts/pointplot-demo",
     ],
 )

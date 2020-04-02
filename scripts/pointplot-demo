@@ -1,0 +1,1 @@
+python -m catplot.main --point-plot-demo
