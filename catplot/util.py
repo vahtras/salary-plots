@@ -6,11 +6,13 @@ def process_filters(df, filters):
         for kv in filters:
             if '!=' in kv:
                 k, v = kv.split('!=')
-                try:
-                    v = int(v)
-                except ValueError:
-                    pass
-                v = re.sub('_', ' ', v)
+                if df[k].dtype == int:
+                    try:
+                        v = int(v)
+                    except ValueError:
+                        raise
+                else:
+                    v = re.sub('_', ' ', v)
                 df = df[df[k] != v]
             elif '=' in kv:
                 k, v = kv.split('=')
