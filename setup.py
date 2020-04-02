@@ -12,4 +12,7 @@ setup(
         "scripts/stripplot",
         "scripts/stripplot-demo",
     ],
+    entry_points={
+        'console_scripts': ['catplot=catplot.main:main'],
+    },
 )

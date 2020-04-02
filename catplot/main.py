@@ -90,7 +90,7 @@ def get_args():
     )
 
     args = parser.parse_args()
-    print(args)
+    args.parser = parser
     return args
 
 
@@ -99,7 +99,8 @@ def main():
     Main driver for annotated plots
     """
 
-    cfg = get_config(get_args(), ini='config.ini')
+    args = get_args()
+    cfg = get_config(args, ini='config.ini')
 
     if isinstance(cfg.get('num'), list):
         cfg['num'] = ' '.join(cfg['num'])
@@ -116,8 +117,14 @@ def main():
         stripplot_demo()
         return
 
-    if not cfg['data']:
+    if not cfg.get('data'):
         print("No data")
+        args.parser.print_usage()
+        return
+
+    if not cfg.get('num'):
+        print("No numerical")
+        args.parser.print_usage()
         return
 
     if cfg.get('palette'):
