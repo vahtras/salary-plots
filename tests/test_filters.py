@@ -10,7 +10,7 @@ Event = namedtuple('event', ['xdata', 'ydata'])
 
 def test_get_0(df):
     calculated = util.process_filters(df, ("kr=0",))
-    expected = pd.DataFrame(dict(kr=[0], km=['Barn'], school=['D']), index=[5])
+    expected = pd.DataFrame(dict(kr=[0], km=['O'], school=['D']), index=[5])
     pdt.assert_frame_equal(calculated, expected)
 
 
