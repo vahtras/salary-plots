@@ -1,0 +1,2 @@
+python -m catplot.main --plot-type strip $@
+
