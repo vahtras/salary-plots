@@ -157,6 +157,7 @@ class BoxPlotter(Plotter):
         with mouse
         """
         self.fig, self.ax = plt.subplots(figsize=(16, 9))
+        breakpoint()
         sns.boxplot(
             data=self.df,
             x=self.numerical,

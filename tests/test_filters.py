@@ -49,3 +49,16 @@ def test_isin(df):
     ids=["=", ">", "()", "G"])
 def test_filter_values(test_input, expected):
     assert util.filter_values(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("school=A", "school"),
+        ("date>2018-10-01", "date"),
+        ("Chefsbef/annan bef=Chef (1)", "Chefsbef/annan bef"),
+        ("Grupp.nivå=4", "Grupp.nivå"),
+    ],
+    ids=["=", ">", "()", "G"])
+def test_filter_keys(test_input, expected):
+    assert util.filter_keys(test_input) == expected

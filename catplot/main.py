@@ -88,6 +88,7 @@ def get_args():
     parser.add_argument(
         '--yo', nargs='+', default=[], type=int, help='filter data'
     )
+    parser.add_argument('--ini', default='config.ini', help='Colors')
 
     args = parser.parse_args()
     args.parser = parser
@@ -100,7 +101,7 @@ def main():
     """
 
     args = get_args()
-    cfg = get_config(args, ini='config.ini')
+    cfg = get_config(args, ini=args.ini)
 
     if isinstance(cfg.get('num'), list):
         cfg['num'] = ' '.join(cfg['num'])
@@ -186,6 +187,8 @@ def main():
     print(table)
     table.to_csv(csv_file)
     table.to_excel(csv_file.strip('csv') + 'xlsx')
+
+    print(process_filters(df, cfg.get('show', [])).T.dropna())
 
 
 if __name__ == "__main__":
