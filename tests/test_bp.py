@@ -51,6 +51,7 @@ def df():
 
 
 def test_box_setup(df):
+    breakpoint()
     plotter = BoxPlotter(df, "kr", categorical="school")
     assert plotter.numerical == "kr"
     assert plotter.categorical == "school"
