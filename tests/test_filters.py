@@ -45,8 +45,9 @@ def test_isin(df):
         ("date>2018-10-01", "2018-10-01"),
         ("Chefsbef/annan bef=Chef (1)", "Chef (1)"),
         ("Grupp.nivå=4", "4"),
+        ("Benämning@Arb:Tj,_folk", "Arb:Tj, folk"),
     ],
-    ids=["=", ">", "()", "G"])
+    ids=["=", ">", "()", "G", "@"])
 def test_filter_values(test_input, expected):
     assert util.filter_values(test_input) == expected
 
@@ -58,7 +59,22 @@ def test_filter_values(test_input, expected):
         ("date>2018-10-01", "date"),
         ("Chefsbef/annan bef=Chef (1)", "Chefsbef/annan bef"),
         ("Grupp.nivå=4", "Grupp.nivå"),
+        ("Benämning@Arb:Tj", "Benämning"),
     ],
-    ids=["=", ">", "()", "G"])
+    ids=["=", ">", "()", "G", "@"])
 def test_filter_keys(test_input, expected):
     assert util.filter_keys(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (["school=A"], {"school": "A"}),
+        (["date>2018-10-01"], {"date": "2018-10-01"}),
+        (["Chefsbef/annan bef=Chef (1)"], {"Chefsbef/annan bef": "Chef (1)"}),
+        (["Grupp.nivå=4"], {"Grupp.nivå": "4"}),
+        (["Benämning@Arb:Tj,_folk"], {"Benämning": ["Arb", "Tj, folk"]}),
+    ],
+    ids=["=", ">", "()", "G", "@"])
+def test_filter_dict(test_input, expected):
+    assert util.filter_dict(test_input) == expected

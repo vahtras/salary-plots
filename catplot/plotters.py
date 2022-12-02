@@ -1,10 +1,8 @@
-import webbrowser
-
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from .util import process_filters
+from . import util
 
 
 class Plotter:
@@ -23,7 +21,7 @@ class Plotter:
         self.df = df
         self.numerical = numerical
 
-        default = dict(categorical=None, annotate=())
+        default = dict(categorical=None, annotate=(), filters=[])
         settings = {**default, **kwargs}
         self.categorical = settings.get("categorical")
         self.hue = settings.get("hue")
@@ -33,6 +31,7 @@ class Plotter:
         self.ax = None
         self.sorted = None
         self.palette = settings.get("palette")
+        self.settings = settings
 
     def categorical_values(self):
         """
@@ -40,6 +39,13 @@ class Plotter:
         """
         if self.categorical is None:
             return []
+
+        # preserve the order of filtered category values
+        filters = util.filter_dict(self.settings['filters'])
+        if self.categorical in filters:
+            return filters[self.categorical]
+
+        self.df[self.categorical] = self.df[self.categorical].astype(str)
         return sorted(list(self.df[self.categorical].dropna().unique()))
 
     def hue_values(self):
@@ -48,6 +54,8 @@ class Plotter:
         """
         if self.hue is None:
             return []
+        if 'hue_order' in self.settings:
+            return self.settings['hue_order']
         return sorted(list(self.df[self.hue].dropna().unique()))
 
     def plot(self, **kwargs):
@@ -120,7 +128,11 @@ class Plotter:
             percentiles=percentiles
         )
         if self.categorical:
-            grouped_stat = self.df.groupby(self.categorical)[
+            if self.hue:
+                groups = [self.categorical, self.hue]
+            else:
+                groups = self.categorical
+            grouped_stat = self.df.groupby(groups)[
                 self.numerical
             ].describe(percentiles=percentiles)
             stat = pd.concat([grouped_stat, all_stat])
@@ -149,6 +161,8 @@ class BoxPlotter(Plotter):
         """
         if self.hue is None:
             return []
+        if 'hue_order' in self.settings:
+            return self.settings['hue_order']
         return sorted(list(self.df[self.hue].dropna().unique()))
 
     def plot(self, **kwargs):
@@ -157,14 +171,27 @@ class BoxPlotter(Plotter):
         with mouse
         """
         self.fig, self.ax = plt.subplots(figsize=(16, 9))
+
+        filters = util.filter_dict(kwargs.get('filters', []))
+
+        if self.categorical in filters:
+            category_order = filters[self.categorical]
+        else:
+            category_order = self.categorical_values()
+
+        if self.hue in filters:
+            hue_order = filters[self.hue]
+        else:
+            hue_order = self.hue_values()
+
         sns.boxplot(
             data=self.df,
             x=self.numerical,
             y=self.categorical,
             hue=self.hue,
             whis=(10, 90),
-            order=self.categorical_values(),
-            hue_order=self.hue_values(),
+            order=category_order,
+            hue_order=hue_order,
             orient="h",
             showmeans=True,
             meanline=True,
@@ -172,7 +199,7 @@ class BoxPlotter(Plotter):
         )
 
         if kwargs.get("show") is not None:
-            show_rows = process_filters(self.df, kwargs["show"])
+            show_rows = util.process_filters(self.df, kwargs["show"])
             # show_rows = show_rows.sort_values(kwargs['num'], ascending=False)
             for i, (ind, row) in enumerate(show_rows.iterrows()):
                 # shift = random.choice(range(len(show_rows)))
@@ -213,7 +240,9 @@ class BoxPlotter(Plotter):
         """
         if self.categorical is None:
             return pd.Series(len(self.df) * [0.0], index=self.df.index)
-        y_labels = sorted(list(self.df[self.categorical].unique()))
+        # y_labels = sorted(list(self.df[self.categorical].unique()))
+        y_labels = self.categorical_values()
+
         y_values = pd.Series(
             (
                 y_labels.index(row[self.categorical])
@@ -285,7 +314,7 @@ class PointPlotter(Plotter):
         self.ax.set_xticks([])
 
         if kwargs.get("show") is not None:
-            show_rows = process_filters(self.sorted, kwargs["show"])
+            show_rows = util.process_filters(self.sorted, kwargs["show"])
             for ind, row in show_rows.iterrows():
                 self(None, row)
 
