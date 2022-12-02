@@ -1,16 +1,25 @@
 from unittest import mock
 from collections import namedtuple
 
+import pytest
+
 from catplot import main, plotters
 
 Event = namedtuple("event", ["xdata", "ydata"])
 
 
-def test_pp_default_setup(df):
-    plotter = plotters.PointPlotter(df, "Salary", categorical="Gender")
+@pytest.mark.parametrize(
+    'numerical, categorical',
+    [
+        ('Salary', 'Gender'),
+        ('Lön', 'Kön'),
+    ]
+)
+def test_pp_default_setup(numerical, categorical, df):
+    plotter = plotters.PointPlotter(df, numerical, categorical=categorical)
     assert plotter.df is df
-    assert plotter.numerical == "Salary"
-    assert plotter.categorical == "Gender"
+    assert plotter.numerical == numerical
+    assert plotter.categorical == categorical
 
 
 def test_pp_plot(df):

@@ -3,7 +3,6 @@ from unittest import mock
 from collections import namedtuple
 import pandas as pd
 import pandas.testing as pdt
-import numpy as np
 from catplot.plotters import StripPlotter
 
 Event = namedtuple("event", ["xdata", "ydata"])
@@ -11,12 +10,6 @@ Event = namedtuple("event", ["xdata", "ydata"])
 
 @pytest.fixture
 def df():
-    # sample = 10
-    # np.random.seed(0)
-    # x = np.random.randint(20000, 40000, sample)
-    # km = np.random.choice(['Kvinna', 'Man'], sample)
-    # school = np.random.choice(['A', 'B', 'C'], sample)
-    # age = [21, 21, 22, 24, 21, 27, 27, 24, 24, 23]
     _df = pd.DataFrame(
         dict(
             kr=[

@@ -411,4 +411,69 @@ class StripPlotter(Plotter):
         return (row.x, row[self.numerical])
 
 
+class HtripPlotter(Plotter):
+
+    def __init__(self, df, numerical, **kwargs):
+        """
+        Initialize for stripplot
+        """
+        super().__init__(df, numerical, **kwargs)
+        self.hue = kwargs.get("hue")
+        self.df["y"] = self.set_y()
+
+    def set_y(self):
+        """
+        set expected y coordinate of categorical data point
+        """
+
+        if self.categorical is None:
+            return pd.Series(len(self.df) * [0.0], index=self.df.index)
+        y_labels = sorted(list(self.df[self.categorical].unique()))
+        y_values = pd.Series(
+            (
+                y_labels.index(row[self.categorical])
+                if pd.notnull(row[self.categorical])
+                else -1
+                for _, row in self.df.iterrows()
+            ),
+            index=self.df.index,
+        )
+
+        return y_values
+
+    def plot(self, **kwargs):
+        """
+        Calls Seaborn strip function and connects the plot for interaction with
+        mouse
+        """
+        self.fig, self.ax = plt.subplots(figsize=(16, 9))
+        sns.stripplot(
+            data=self.df,
+            x=self.numerical,
+            y=self.categorical,
+            hue=self.hue,
+            order=self.categorical_values(),
+            hue_order=self.hue_values(),
+            orient='h',
+            jitter=0,
+        )
+
+        self.fig.canvas.mpl_connect("button_press_event", self.on_click)
+        self.fig.canvas.mpl_connect("motion_notify_event", self)
+
+    def get_row(self, event):
+        row = None
+        if event.xdata is not None and event.ydata is not None:
+            in_x = (
+                self.df[self.numerical].max() - self.df[self.numerical].min()
+                ) * 0.01
+            in_y = (self.df.y.max() - self.df.y.min() + 1) * 0.01
+            is_near_x = (self.df[self.numerical] - event.xdata)**2 < in_x**2
+            is_near_y = (self.df.y - event.ydata)**2 < in_y**2
+            selected = is_near_x & is_near_y
+            if selected.any():
+                row = self.df[selected].iloc[0]
+        return row
+
+
 plotters = {"box": BoxPlotter, "point": PointPlotter, "strip": StripPlotter}
