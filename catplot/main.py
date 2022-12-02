@@ -33,7 +33,7 @@ def get_settings(ini='config.ini'):
     cli overrides config overrides environment
     for values not None
 
-    some options accumulate: filters,...
+    Some options accumulate: filters,...
     """
     environment = get_environment()
     config = {k: v for k, v in get_config(ini=ini).items() if v is not None}
@@ -211,7 +211,7 @@ def main():
 
     fig = plt.gcf()
     plt.grid(True)
-    if args.display:
+    if cfg.get('display'):
         plt.show()
 
     figure_file = f"{cfg['plot_type']}"

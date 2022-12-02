@@ -9,8 +9,12 @@ from catplot.main import get_settings
 
 @pytest.fixture
 def sysargv():
+    sysargv_copy = sys.argv.copy()
     sys.argv[1:] = []
-    return sys.argv
+    yield sys.argv
+    sys.argv[:] = sysargv_copy
+    if 'filters' in os.environ:
+        del os.environ['filters']
 
 
 def test_data_from_env(sysargv):

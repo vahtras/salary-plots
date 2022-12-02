@@ -74,7 +74,7 @@ def test_no_categorical_values(plx):
 
 def test_categorical_values(df):
     plotter = StripPlotter(df, "kr", categorical="age")
-    assert plotter.categorical_values() == [20, 21, 22, 23, 27, 28]
+    assert plotter.categorical_values() == ['20', '21', '22', '23', '27', '28']
 
 
 def test_categorical_x_values(df):
@@ -119,7 +119,7 @@ def test_plot_seaborn(mock_show, plxyz):
             x="age",
             hue="km",
             orient="v",
-            order=[20, 21, 22, 23, 27, 28],
+            order=['20', '21', '22', '23', '27', '28'],
             hue_order=["Kvinna", "Man"],
             jitter=0,
         )

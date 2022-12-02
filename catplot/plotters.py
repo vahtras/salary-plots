@@ -41,8 +41,7 @@ class Plotter:
             return []
 
         # preserve the order of filtered category values
-        breakpoint()
-        filters = util.filter_dict(self.settings['cfg']['filters'])
+        filters = util.filter_dict(self.settings['filters'])
         if self.categorical in filters:
             return filters[self.categorical]
 
@@ -55,9 +54,8 @@ class Plotter:
         """
         if self.hue is None:
             return []
-        cfg = self.settings['cfg']
-        if 'hue_order' in cfg:
-            return cfg['hue_order']
+        if 'hue_order' in self.settings:
+            return self.settings['hue_order']
         return sorted(list(self.df[self.hue].dropna().unique()))
 
     def plot(self, **kwargs):
@@ -163,9 +161,8 @@ class BoxPlotter(Plotter):
         """
         if self.hue is None:
             return []
-        cfg = self.settings['cfg']
-        if 'hue_order' in cfg:
-            return cfg['hue_order']
+        if 'hue_order' in self.settings:
+            return self.settings['hue_order']
         return sorted(list(self.df[self.hue].dropna().unique()))
 
     def plot(self, **kwargs):
