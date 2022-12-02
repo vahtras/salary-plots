@@ -37,7 +37,7 @@ def get_settings(ini='config.ini'):
     """
     environment = get_environment()
     config = {k: v for k, v in get_config(ini=ini).items() if v is not None}
-    args = {k: v for k, v in get_args().items() if v}
+    args = {k: v for k, v in get_args().__dict__.items() if v}
 
     # accumulative  options
 
@@ -50,6 +50,7 @@ def get_settings(ini='config.ini'):
         )
 
     settings = {**environment, **config, **args, **accumulative}
+
     return settings
 
 
@@ -132,7 +133,7 @@ def get_args():
     )
 
     args = parser.parse_args()
-    return args.__dict__
+    return args
 
 
 def main():
@@ -160,14 +161,10 @@ def main():
         return
 
     if not cfg.get('data'):
-        print("No data")
-        args.parser.print_usage()
-        return
+        raise Exception("No data")
 
     if not cfg.get('num'):
-        print("No numerical")
-        args.parser.print_usage()
-        return
+        raise Exception("No numerical")
 
     if cfg.get('palette'):
         if isinstance(cfg['palette'], str):
