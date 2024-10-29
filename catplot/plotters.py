@@ -177,12 +177,12 @@ class BoxPlotter(Plotter):
         if self.categorical in filters:
             category_order = filters[self.categorical]
         else:
-            category_order = self.categorical_values()
+            category_order = self.categorical_values() or None
 
         if self.hue in filters:
             hue_order = filters[self.hue]
         else:
-            hue_order = self.hue_values()
+            hue_order = self.hue_values() or None
 
         sns.boxplot(
             data=self.df,
