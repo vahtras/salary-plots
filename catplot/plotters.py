@@ -170,7 +170,8 @@ class BoxPlotter(Plotter):
         Calls the Seaborn plot function and connects the plot for interactive
         with mouse
         """
-        self.fig, self.ax = plt.subplots(figsize=(16, 9))
+        #self.fig, self.ax = plt.subplots(figsize=(16, 9))
+        self.fig, self.ax = plt.subplots(figsize=(9, 16))
 
         filters = util.filter_dict(kwargs.get('filters', []))
 

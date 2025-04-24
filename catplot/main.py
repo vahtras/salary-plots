@@ -60,7 +60,7 @@ def get_environment():
     """
     import os
     env = {}
-    for k in ['data']:
+    for k in ['data', 'plot_type']:
         env[k] = os.getenv(k)
     for k in ['filters']:
         env[k] = os.getenv(k, "").split()
