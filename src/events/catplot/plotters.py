@@ -122,7 +122,7 @@ class Plotter:
         plt.gcf().canvas.draw_idle()
 
     def table(self):
-        percentiles = (0.1, 0.25, 0.75, 0.9)
+        percentiles = (0.1, 0.25, 0.5, 0.75, 0.9)
         self.df["alla"] = "Alla"
         all_stat = self.df.groupby("alla")[self.numerical].describe(
             percentiles=percentiles
@@ -176,7 +176,7 @@ class BoxPlotter(Plotter):
         filters = util.filter_dict(kwargs.get('filters', []))
 
         if self.categorical in filters:
-            category_order = filters[self.categorical]
+            category_order = [filters[self.categorical]]
         else:
             category_order = self.categorical_values() or None
 
@@ -185,11 +185,19 @@ class BoxPlotter(Plotter):
         else:
             hue_order = self.hue_values() or None
 
+        config = {}
+
+        if category_order:
+            palette = sns.color_palette(n_colors=len(category_order) + 1)[1:]
+            colors = {s: c for s, c in zip(category_order, palette)}
+            config["palette"] = colors
+
+
         sns.boxplot(
             data=self.df,
             x=self.numerical,
             y=self.categorical,
-            hue=self.hue,
+            hue=self.hue or self.categorical,
             whis=(10, 90),
             order=category_order,
             hue_order=hue_order,
@@ -197,6 +205,7 @@ class BoxPlotter(Plotter):
             showmeans=True,
             meanline=True,
             meanprops={'color': 'white'},
+            **config
         )
 
         if kwargs.get("show") is not None:

@@ -51,10 +51,10 @@ def process_filters(df, filters):
                 values = v.split(':')
                 values = [re.sub('_', ' ', v) for v in values]
                 df = df[df[k].isin(values)]
-            elif '.match.' in kv:
-                k, v = kv.split('.match.')
+            elif '~' in kv:
+                k, v = kv.split('~')
                 v = re.sub('_', ' ', v)
-                df = df[df[k].notna() & df[k].str.match(fr'.*{v}.*')]
+                df = df[df[k].notna() & df[k].str.contains(fr'{v}')]
     except KeyError:
         print('Available columns:', df.columns)
         exit(1)
