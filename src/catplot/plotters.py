@@ -187,7 +187,7 @@ class BoxPlotter(Plotter):
 
         config = {}
 
-        if category_order:
+        if category_order and not self.hue:
             palette = sns.color_palette(n_colors=len(category_order) + 1)[1:]
             colors = {s: c for s, c in zip(category_order, palette)}
             config["palette"] = colors
