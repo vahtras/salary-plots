@@ -24,3 +24,4 @@ dev = [
 [project.scripts]
 catplot = "catplot.main:main"
 boxplot-demo = "catplot.main:boxplot_demo"
+pointplot-demo = "catplot.main:pointplot_demo"
